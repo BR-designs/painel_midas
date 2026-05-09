@@ -323,19 +323,23 @@
   let dadosEmpreendimentos = [];
 
   async function carregarAba(aba) {
-    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${aba.gid}`;
-    const resp = await fetch(url);
-    const texto = await resp.text();
-    const linhas = texto.trim().split("\n").slice(1);
-    const unidades = linhas
-      .map(l => l.replace(/"/g, "").split(","))
-      .filter(cols => cols[0] && cols[1] && cols[1].trim() !== "")
-      .map(cols => ({
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${aba.gid}`;
+  const resp = await fetch(url);
+  const texto = await resp.text();
+  const linhas = texto.trim().split("\n").slice(1);
+  const unidades = linhas
+    .map(l => l.replace(/"/g, "").split(","))
+    .filter(cols => cols[0] && cols[1] && cols[1].trim() !== "")
+    .map(cols => {
+      const statusRaw = cols[1].trim().toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      return {
         numero: cols[0].trim(),
-        status: cols[1].trim().toLowerCase()
-      }));
-    return { nome: aba.nome, unidades };
-  }
+        status: statusRaw
+      };
+    });
+  return { nome: aba.nome, unidades };
+}
 
   async function carregarTodos() {
     try {
