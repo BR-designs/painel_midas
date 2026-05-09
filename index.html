@@ -37,22 +37,11 @@
       font-weight: 600;
     }
 
-    .header-left h1 {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: white;
-    }
+    .header-left h1 { font-size: 1.2rem; font-weight: 700; color: white; }
 
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
+    .header-right { display: flex; align-items: center; gap: 16px; }
 
-    #ultima-atualizacao {
-      font-size: 0.8rem;
-      color: #888;
-    }
+    #ultima-atualizacao { font-size: 0.8rem; color: #888; }
 
     #btn-filtros-mobile {
       display: none;
@@ -199,6 +188,16 @@
 
     .emp-header h2 { font-size: 1rem; font-weight: 600; }
 
+    .emp-info {
+      display: flex;
+      gap: 16px;
+      font-size: 0.75rem;
+      color: #888;
+      flex-wrap: wrap;
+      padding: 10px 20px;
+      border-bottom: 1px solid #222;
+    }
+
     .emp-resumo {
       display: flex;
       gap: 16px;
@@ -208,7 +207,6 @@
     }
 
     .emp-resumo span { display: flex; align-items: center; gap: 5px; }
-
     .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
 
     .grade {
@@ -227,7 +225,7 @@
       justify-content: center;
       font-size: 0.72rem;
       font-weight: 600;
-      cursor: default;
+      cursor: pointer;
       transition: transform 0.15s, box-shadow 0.15s;
       user-select: none;
     }
@@ -236,10 +234,131 @@
     .unidade.disponivel { background: #2ecc71; color: white; }
     .unidade.reservado  { background: #FEAF00; color: #111; }
     .unidade.vendido    { background: #e74c3c; color: white; }
-    .unidade.oculto     { opacity: 0.12; transform: none !important; }
+    .unidade.oculto     { opacity: 0.12; transform: none !important; pointer-events: none; }
 
     .unidade .num   { font-size: 0.85rem; }
     .unidade .label { font-size: 0.6rem; opacity: 0.85; margin-top: 2px; }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-overlay.ativo { display: flex; }
+
+    .modal {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 480px;
+      max-height: 90vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-topo {
+      padding: 20px 24px 16px;
+      border-bottom: 2px solid #FEAF00;
+      background: #000;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .modal-topo-info {}
+    .modal-emp-nome { font-size: 0.72rem; color: #FEAF00; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; }
+    .modal-und-titulo { font-size: 1.3rem; font-weight: 700; color: white; margin-top: 4px; }
+
+    .modal-status-badge {
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      flex-shrink: 0;
+    }
+
+    .modal-status-badge.disponivel { background: #2ecc71; color: white; }
+    .modal-status-badge.reservado  { background: #FEAF00; color: #111; }
+    .modal-status-badge.vendido    { background: #e74c3c; color: white; }
+
+    .modal-corpo { padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+
+    .modal-secao-titulo {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #FEAF00;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .modal-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .modal-campo { display: flex; flex-direction: column; gap: 3px; }
+
+    .modal-campo-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #666;
+    }
+
+    .modal-campo-valor {
+      font-size: 0.92rem;
+      color: #f0f0f0;
+      font-weight: 500;
+    }
+
+    .modal-campo-valor.destaque {
+      font-size: 1.1rem;
+      color: #FEAF00;
+      font-weight: 700;
+    }
+
+    .modal-campo-valor.vazio { color: #444; font-style: italic; font-size: 0.82rem; }
+
+    .modal-divider { border: none; border-top: 1px solid #2a2a2a; }
+
+    .modal-fechar {
+      background: #222;
+      border: 1px solid #333;
+      color: #aaa;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      margin: 0 24px 24px;
+      font-weight: 600;
+    }
+
+    .modal-fechar:hover { background: #333; color: white; }
+
+    .observacao-box {
+      background: #111;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 0.85rem;
+      color: #bbb;
+      line-height: 1.5;
+    }
 
     @media (max-width: 768px) {
       #btn-filtros-mobile { display: block; }
@@ -258,6 +377,7 @@
       .container { padding: 16px; }
       .legenda { padding: 12px 16px; }
       header { padding: 14px 16px; }
+      .modal-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -311,54 +431,149 @@
   </div>
 </div>
 
+<!-- MODAL DETALHES -->
+<div class="modal-overlay" id="modal-detalhes">
+  <div class="modal">
+    <div class="modal-topo">
+      <div class="modal-topo-info">
+        <div class="modal-emp-nome" id="modal-emp-nome"></div>
+        <div class="modal-und-titulo" id="modal-und-titulo"></div>
+      </div>
+      <div class="modal-status-badge" id="modal-status-badge"></div>
+    </div>
+    <div class="modal-corpo">
+
+      <div>
+        <div class="modal-secao-titulo">Valores e Características</div>
+        <div class="modal-grid">
+          <div class="modal-campo">
+            <span class="modal-campo-label">Valor</span>
+            <span class="modal-campo-valor destaque" id="md-valor"></span>
+          </div>
+          <div class="modal-campo">
+            <span class="modal-campo-label">Metragem</span>
+            <span class="modal-campo-valor" id="md-metragem"></span>
+          </div>
+          <div class="modal-campo">
+            <span class="modal-campo-label">Quartos</span>
+            <span class="modal-campo-valor" id="md-quartos"></span>
+          </div>
+          <div class="modal-campo">
+            <span class="modal-campo-label">Banheiros</span>
+            <span class="modal-campo-valor" id="md-banheiros"></span>
+          </div>
+          <div class="modal-campo">
+            <span class="modal-campo-label">Suítes</span>
+            <span class="modal-campo-valor" id="md-suites"></span>
+          </div>
+        </div>
+      </div>
+
+      <hr class="modal-divider">
+
+      <div>
+        <div class="modal-secao-titulo">Localização</div>
+        <div class="modal-grid">
+          <div class="modal-campo">
+            <span class="modal-campo-label">Rua</span>
+            <span class="modal-campo-valor" id="md-rua"></span>
+          </div>
+          <div class="modal-campo">
+            <span class="modal-campo-label">Número</span>
+            <span class="modal-campo-valor" id="md-numero"></span>
+          </div>
+          <div class="modal-campo">
+            <span class="modal-campo-label">Bairro</span>
+            <span class="modal-campo-valor" id="md-bairro"></span>
+          </div>
+          <div class="modal-campo">
+            <span class="modal-campo-label">Cidade</span>
+            <span class="modal-campo-valor" id="md-cidade"></span>
+          </div>
+        </div>
+      </div>
+
+      <hr class="modal-divider">
+
+      <div>
+        <div class="modal-secao-titulo">Empreendimento</div>
+        <div class="modal-grid">
+          <div class="modal-campo">
+            <span class="modal-campo-label">Construtora</span>
+            <span class="modal-campo-valor" id="md-construtora"></span>
+          </div>
+          <div class="modal-campo">
+            <span class="modal-campo-label">Tipo</span>
+            <span class="modal-campo-valor" id="md-tipo"></span>
+          </div>
+        </div>
+      </div>
+
+      <div id="md-obs-wrapper">
+        <hr class="modal-divider">
+        <div>
+          <div class="modal-secao-titulo">Observação</div>
+          <div class="observacao-box" id="md-obs"></div>
+        </div>
+      </div>
+
+    </div>
+    <button class="modal-fechar" onclick="fecharModal()">Fechar</button>
+  </div>
+</div>
+
 <script>
   const SHEET_ID = "1wRorFx_SCPnQM2yEvkpWcF4pw9inoh0PjsFGszB7gi4";
-  const CONFIG_GID = 825919138; // substituir pelo gid real da aba config
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7_w7xFBHm0XPTqtC8KmK39QNAHCXjUKC1XIEHzFQpzSeFZvyxOwAym5Lw8T53nIOBpA/exec";
 
   let dadosEmpreendimentos = [];
 
   function normalizar(str) {
-    return str.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    if (!str) return "";
+    return String(str).trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   }
 
-  async function carregarConfig() {
-    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${CONFIG_GID}`;
-    const resp = await fetch(url);
-    const texto = await resp.text();
-    const linhas = texto.trim().split("\n").slice(1);
-    return linhas
-      .map(l => l.replace(/"/g, "").split(","))
-      .filter(cols => cols[0] && cols[1] && cols[1].trim() !== "")
-      .map(cols => ({
-        nome: cols[0].trim(),
-        gid: parseInt(cols[1].trim())
-      }));
+  function valorOu(val, sufixo) {
+    if (!val || String(val).trim() === "") return null;
+    return sufixo ? `${val} ${sufixo}` : String(val);
   }
 
-  async function carregarAba(aba) {
-    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${aba.gid}`;
-    const resp = await fetch(url);
-    const texto = await resp.text();
-    const linhas = texto.trim().split("\n").slice(1);
-    const unidades = linhas
-      .map(l => l.replace(/"/g, "").split(","))
-      .filter(cols => cols[0] && cols[1] && cols[1].trim() !== "")
-      .map(cols => ({
-        numero: cols[0].trim(),
-        status: normalizar(cols[1])
-      }));
-    return { nome: aba.nome, unidades };
+  function preencherCampo(id, valor, sufixo) {
+    const el = document.getElementById(id);
+    const v = valorOu(valor, sufixo);
+    if (v) {
+      el.textContent = v;
+      el.classList.remove("vazio");
+    } else {
+      el.textContent = "Não informado";
+      el.classList.add("vazio");
+    }
   }
 
+  // Carrega empreendimentos e unidades via Apps Script
   async function carregarTodos() {
     try {
-      const abas = await carregarConfig();
-      dadosEmpreendimentos = await Promise.all(abas.map(carregarAba));
+      const resp = await fetch(`${SCRIPT_URL}?acao=listarEmpreendimentos`);
+      const dados = await resp.json();
+      const emps = dados.empreendimentos || [];
+
+      dadosEmpreendimentos = await Promise.all(emps.map(async emp => {
+        const r = await fetch(`${SCRIPT_URL}?acao=listarUnidades&gid=${emp.gid}`);
+        const d = await r.json();
+        return {
+          ...emp,
+          unidades: (d.unidades || []).map(u => ({
+            ...u,
+            statusNorm: normalizar(u.status)
+          }))
+        };
+      }));
+
       renderPainel();
       renderFiltrosEmpreendimentos();
     } catch (e) {
       document.getElementById("painel").innerHTML =
-        `<div class="loading">Erro ao carregar dados. Verifique se a planilha está publicada na web.</div>`;
+        `<div class="loading">Erro ao carregar dados. Verifique a conexão com o Apps Script.</div>`;
     }
   }
 
@@ -369,9 +584,16 @@
     return status;
   }
 
+  function labelStatusCompleto(status) {
+    if (status === "disponivel") return "Disponível";
+    if (status === "reservado")  return "Reservado";
+    if (status === "vendido")    return "Vendido";
+    return status;
+  }
+
   function contarStatus(unidades) {
     return unidades.reduce((acc, u) => {
-      acc[u.status] = (acc[u.status] || 0) + 1;
+      acc[u.statusNorm] = (acc[u.statusNorm] || 0) + 1;
       return acc;
     }, {});
   }
@@ -384,9 +606,9 @@
       if (emp.unidades.length === 0) return;
 
       const contagem = contarStatus(emp.unidades);
-      const disp   = contagem.disponivel || 0;
-      const reserv  = contagem.reservado  || 0;
-      const vend   = contagem.vendido    || 0;
+      const disp  = contagem.disponivel || 0;
+      const reserv = contagem.reservado  || 0;
+      const vend  = contagem.vendido    || 0;
 
       const div = document.createElement("div");
       div.className = "empreendimento";
@@ -401,6 +623,11 @@
             <span><span class="dot" style="background:#e74c3c"></span> ${vend} vendidos</span>
           </div>
         </div>
+        <div class="emp-info">
+          <span>📍 ${emp.bairro || ""}${emp.cidade ? ", " + emp.cidade : ""}</span>
+          <span>🏗️ ${emp.construtora || ""}</span>
+          <span>🏠 ${emp.tipo || ""}</span>
+        </div>
         <div class="grade"></div>
       `;
 
@@ -409,9 +636,10 @@
       const grade = div.querySelector(".grade");
       emp.unidades.forEach(u => {
         const el = document.createElement("div");
-        el.className = `unidade ${u.status}`;
-        el.dataset.status = u.status;
-        el.innerHTML = `<span class="num">${u.numero}</span><span class="label">${labelStatus(u.status)}</span>`;
+        el.className = `unidade ${u.statusNorm}`;
+        el.dataset.status = u.statusNorm;
+        el.innerHTML = `<span class="num">${u.unidade}</span><span class="label">${labelStatus(u.statusNorm)}</span>`;
+        el.addEventListener("click", () => abrirModal(emp, u));
         grade.appendChild(el);
       });
     });
@@ -419,6 +647,63 @@
     atualizarTimestamp();
     aplicarFiltros();
   }
+
+  function abrirModal(emp, u) {
+    const status = u.statusNorm;
+
+    document.getElementById("modal-emp-nome").textContent = emp.nome;
+    document.getElementById("modal-und-titulo").textContent = `Unidade ${u.unidade}`;
+
+    const badge = document.getElementById("modal-status-badge");
+    badge.textContent = labelStatusCompleto(status);
+    badge.className = `modal-status-badge ${status}`;
+
+    // Valor formatado
+    const valorEl = document.getElementById("md-valor");
+    if (u.valor && String(u.valor).trim() !== "") {
+      const num = parseFloat(String(u.valor).replace(/\./g, "").replace(",", "."));
+      valorEl.textContent = isNaN(num)
+        ? u.valor
+        : num.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+      valorEl.classList.remove("vazio");
+    } else {
+      valorEl.textContent = "Não informado";
+      valorEl.classList.add("vazio");
+    }
+
+    preencherCampo("md-metragem", u.metragem, u.metragem ? "m²" : "");
+    preencherCampo("md-quartos", u.quartos, "");
+    preencherCampo("md-banheiros", u.banheiros, "");
+    preencherCampo("md-suites", u.suites, "");
+    preencherCampo("md-rua", u.rua, "");
+    preencherCampo("md-numero", u.numero, "");
+    preencherCampo("md-bairro", emp.bairro, "");
+    preencherCampo("md-cidade", emp.cidade, "");
+    preencherCampo("md-construtora", emp.construtora, "");
+    preencherCampo("md-tipo", emp.tipo, "");
+
+    const obsWrapper = document.getElementById("md-obs-wrapper");
+    if (u.observacao && String(u.observacao).trim() !== "") {
+      document.getElementById("md-obs").textContent = u.observacao;
+      obsWrapper.style.display = "";
+    } else {
+      obsWrapper.style.display = "none";
+    }
+
+    document.getElementById("modal-detalhes").classList.add("ativo");
+  }
+
+  function fecharModal() {
+    document.getElementById("modal-detalhes").classList.remove("ativo");
+  }
+
+  document.getElementById("modal-detalhes").addEventListener("click", function(e) {
+    if (e.target === this) fecharModal();
+  });
+
+  document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") fecharModal();
+  });
 
   function renderFiltrosEmpreendimentos() {
     const container = document.getElementById("filtros-empreendimentos");
