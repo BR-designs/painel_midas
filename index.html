@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Painel de Disponibilidade</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      color: #333;
+    }
+
+    header {
+      background: #1a1a2e;
+      color: white;
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header h1 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    header span {
+      font-size: 0.8rem;
+      opacity: 0.6;
+    }
+
+    .legenda {
+      display: flex;
+      gap: 20px;
+      padding: 16px 32px;
+      background: white;
+      border-bottom: 1px solid #e0e0e0;
+      flex-wrap: wrap;
+    }
+
+    .legenda-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: #555;
+    }
+
+    .bolinha {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+    }
+
+    .disponivel { background: #2ecc71; }
+    .reservado  { background: #f39c12; }
+    .vendido    { background: #e74c3c; }
+
+    .container {
+      padding: 28px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .empreendimento {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      overflow: hidden;
+    }
+
+    .emp-header {
+      background: #16213e;
+      color: white;
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .emp-header h2 {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .emp-resumo {
+      display: flex;
+      gap: 16px;
+      font-size: 0.78rem;
+      opacity: 0.85;
+    }
+
+    .emp-resumo span {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .grade {
+      padding: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+      gap: 10px;
+    }
+
+    .unidade {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: white;
+      cursor: default;
+      transition: transform 0.15s, box-shadow 0.15s;
+      user-select: none;
+    }
+
+    .unidade:hover {
+      transform: scale(1.08);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+    }
+
+    .unidade.disponivel { background: #2ecc71; }
+    .unidade.reservado  { background: #f39c12; }
+    .unidade.vendido    { background: #e74c3c; }
+
+    .unidade .num {
+      font-size: 0.85rem;
+    }
+
+    .unidade .label {
+      font-size: 0.6rem;
+      opacity: 0.85;
+      margin-top: 2px;
+    }
+
+    @media (max-width: 600px) {
+      .container { padding: 16px; }
+      .legenda { padding: 12px 16px; }
+      header { padding: 14px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Painel de Disponibilidade de Imóveis</h1>
+  <span id="ultima-atualizacao">Atualizado agora</span>
+</header>
+
+<div class="legenda">
+  <div class="legenda-item"><div class="bolinha disponivel"></div> Disponível</div>
+  <div class="legenda-item"><div class="bolinha reservado"></div> Reservado</div>
+  <div class="legenda-item"><div class="bolinha vendido"></div> Vendido</div>
+</div>
+
+<div class="container" id="painel"></div>
+
+<script>
+  const empreendimentos = [
+    {
+      nome: "Residencial Vila Aurora",
+      unidades: gerarUnidades(52, [
+        { range: [1,10],  status: "vendido" },
+        { range: [11,18], status: "reservado" },
+        { range: [19,52], status: "disponivel" }
+      ])
+    },
+    {
+      nome: "Condomínio Jardins do Sul",
+      unidades: gerarUnidades(48, [
+        { range: [1,20],  status: "vendido" },
+        { range: [21,26], status: "reservado" },
+        { range: [27,48], status: "disponivel" }
+      ])
+    },
+    {
+      nome: "Parque das Flores",
+      unidades: gerarUnidades(60, [
+        { range: [1,30],  status: "vendido" },
+        { range: [31,40], status: "reservado" },
+        { range: [41,60], status: "disponivel" }
+      ])
+    },
+    {
+      nome: "Residencial Monte Verde",
+      unidades: gerarUnidades(55, [
+        { range: [1,5],   status: "vendido" },
+        { range: [6,12],  status: "reservado" },
+        { range: [13,55], status: "disponivel" }
+      ])
+    },
+    {
+      nome: "Alameda dos Ipês",
+      unidades: gerarUnidades(50, [
+        { range: [1,25],  status: "vendido" },
+        { range: [26,32], status: "reservado" },
+        { range: [33,50], status: "disponivel" }
+      ])
+    },
+    {
+      nome: "Reserva Boa Vista",
+      unidades: gerarUnidades(58, [
+        { range: [1,40],  status: "vendido" },
+        { range: [41,48], status: "reservado" },
+        { range: [49,58], status: "disponivel" }
+      ])
+    },
+    {
+      nome: "Solar das Palmeiras",
+      unidades: gerarUnidades(45, [
+        { range: [1,10],  status: "vendido" },
+        { range: [11,15], status: "reservado" },
+        { range: [16,45], status: "disponivel" }
+      ])
+    }
+  ];
+
+  function gerarUnidades(total, regras) {
+    const unidades = [];
+    for (let i = 1; i <= total; i++) {
+      let status = "disponivel";
+      for (const regra of regras) {
+        if (i >= regra.range[0] && i <= regra.range[1]) {
+          status = regra.status;
+          break;
+        }
+      }
+      unidades.push({ numero: i, status });
+    }
+    return unidades;
+  }
+
+  function labelStatus(status) {
+    if (status === "disponivel") return "Livre";
+    if (status === "reservado")  return "Reserv.";
+    if (status === "vendido")    return "Vendido";
+  }
+
+  function contarStatus(unidades) {
+    return unidades.reduce((acc, u) => {
+      acc[u.status] = (acc[u.status] || 0) + 1;
+      return acc;
+    }, {});
+  }
+
+  function renderPainel() {
+    const painel = document.getElementById("painel");
+    painel.innerHTML = "";
+
+    empreendimentos.forEach(emp => {
+      const contagem = contarStatus(emp.unidades);
+      const disp      = contagem.disponivel || 0;
+      const reserv    = contagem.reservado  || 0;
+      const vend      = contagem.vendido    || 0;
+
+      const div = document.createElement("div");
+      div.className = "empreendimento";
+
+      div.innerHTML = `
+        <div class="emp-header">
+          <h2>${emp.nome}</h2>
+          <div class="emp-resumo">
+            <span><span class="dot" style="background:#2ecc71"></span> ${disp} disponíveis</span>
+            <span><span class="dot" style="background:#f39c12"></span> ${reserv} reservados</span>
+            <span><span class="dot" style="background:#e74c3c"></span> ${vend} vendidos</span>
+          </div>
+        </div>
+        <div class="grade" id="grade-${emp.nome.replace(/\s/g,'_')}"></div>
+      `;
+
+      painel.appendChild(div);
+
+      const grade = div.querySelector(".grade");
+      emp.unidades.forEach(u => {
+        const el = document.createElement("div");
+        el.className = `unidade ${u.status}`;
+        el.innerHTML = `<span class="num">${u.numero}</span><span class="label">${labelStatus(u.status)}</span>`;
+        grade.appendChild(el);
+      });
+    });
+
+    atualizarTimestamp();
+  }
+
+  function atualizarTimestamp() {
+    const agora = new Date();
+    const hora = agora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    document.getElementById("ultima-atualizacao").textContent = `Atualizado às ${hora}`;
+  }
+
+  renderPainel();
+</script>
+
+</body>
+</html>
