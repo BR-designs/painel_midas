@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Painel de Disponibilidade</title>
+  <title>Midas - Painel de Disponibilidade</title>
   <style>
     * {
       box-sizing: border-box;
@@ -13,36 +13,50 @@
 
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #f0f2f5;
-      color: #333;
+      background: #111111;
+      color: #f0f0f0;
     }
 
     header {
-      background: #1a1a2e;
+      background: #000000;
       color: white;
       padding: 18px 32px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      border-bottom: 3px solid #FEAF00;
     }
 
-    header h1 {
-      font-size: 1.2rem;
+    .header-left {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-left .marca {
+      font-size: 0.75rem;
+      color: #FEAF00;
+      letter-spacing: 2px;
+      text-transform: uppercase;
       font-weight: 600;
-      letter-spacing: 0.5px;
+    }
+
+    .header-left h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: white;
     }
 
     header span {
       font-size: 0.8rem;
-      opacity: 0.6;
+      color: #888;
     }
 
     .legenda {
       display: flex;
       gap: 20px;
-      padding: 16px 32px;
-      background: white;
-      border-bottom: 1px solid #e0e0e0;
+      padding: 14px 32px;
+      background: #1a1a1a;
+      border-bottom: 1px solid #2a2a2a;
       flex-wrap: wrap;
     }
 
@@ -51,7 +65,7 @@
       align-items: center;
       gap: 8px;
       font-size: 0.85rem;
-      color: #555;
+      color: #aaa;
     }
 
     .bolinha {
@@ -61,7 +75,7 @@
     }
 
     .disponivel { background: #2ecc71; }
-    .reservado  { background: #f39c12; }
+    .reservado  { background: #FEAF00; }
     .vendido    { background: #e74c3c; }
 
     .container {
@@ -72,31 +86,34 @@
     }
 
     .empreendimento {
-      background: white;
+      background: #1a1a1a;
       border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.4);
       overflow: hidden;
+      border: 1px solid #2a2a2a;
     }
 
     .emp-header {
-      background: #16213e;
+      background: #000000;
       color: white;
       padding: 14px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      border-bottom: 2px solid #FEAF00;
     }
 
     .emp-header h2 {
       font-size: 1rem;
       font-weight: 600;
+      color: white;
     }
 
     .emp-resumo {
       display: flex;
       gap: 16px;
       font-size: 0.78rem;
-      opacity: 0.85;
+      color: #aaa;
     }
 
     .emp-resumo span {
@@ -136,12 +153,23 @@
 
     .unidade:hover {
       transform: scale(1.08);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.5);
     }
 
-    .unidade.disponivel { background: #2ecc71; }
-    .unidade.reservado  { background: #f39c12; }
-    .unidade.vendido    { background: #e74c3c; }
+    .unidade.disponivel {
+      background: #2ecc71;
+      color: white;
+    }
+
+    .unidade.reservado {
+      background: #FEAF00;
+      color: #111;
+    }
+
+    .unidade.vendido {
+      background: #e74c3c;
+      color: white;
+    }
 
     .unidade .num {
       font-size: 0.85rem;
@@ -163,7 +191,10 @@
 <body>
 
 <header>
-  <h1>Painel de Disponibilidade de Imóveis</h1>
+  <div class="header-left">
+    <span class="marca">Midas Inteligência Imobiliária</span>
+    <h1>Painel de Disponibilidade</h1>
+  </div>
   <span id="ultima-atualizacao">Atualizado agora</span>
 </header>
 
@@ -269,9 +300,9 @@
 
     empreendimentos.forEach(emp => {
       const contagem = contarStatus(emp.unidades);
-      const disp      = contagem.disponivel || 0;
-      const reserv    = contagem.reservado  || 0;
-      const vend      = contagem.vendido    || 0;
+      const disp  = contagem.disponivel || 0;
+      const reserv = contagem.reservado  || 0;
+      const vend  = contagem.vendido    || 0;
 
       const div = document.createElement("div");
       div.className = "empreendimento";
@@ -281,7 +312,7 @@
           <h2>${emp.nome}</h2>
           <div class="emp-resumo">
             <span><span class="dot" style="background:#2ecc71"></span> ${disp} disponíveis</span>
-            <span><span class="dot" style="background:#f39c12"></span> ${reserv} reservados</span>
+            <span><span class="dot" style="background:#FEAF00"></span> ${reserv} reservados</span>
             <span><span class="dot" style="background:#e74c3c"></span> ${vend} vendidos</span>
           </div>
         </div>
