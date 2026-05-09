@@ -5,11 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Midas - Painel de Disponibilidade</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -87,22 +83,13 @@
       color: #aaa;
     }
 
-    .bolinha {
-      width: 14px;
-      height: 14px;
-      border-radius: 3px;
-    }
-
+    .bolinha { width: 14px; height: 14px; border-radius: 3px; }
     .disponivel-bg { background: #2ecc71; }
     .reservado-bg  { background: #FEAF00; }
     .vendido-bg    { background: #e74c3c; }
 
-    .layout {
-      display: flex;
-      flex: 1;
-    }
+    .layout { display: flex; flex: 1; }
 
-    /* SIDEBAR */
     .sidebar {
       width: 260px;
       min-width: 260px;
@@ -139,9 +126,7 @@
       transition: background 0.15s;
     }
 
-    .filtro-grupo label:hover {
-      background: #222;
-    }
+    .filtro-grupo label:hover { background: #222; }
 
     .filtro-grupo input[type="checkbox"] {
       accent-color: #FEAF00;
@@ -150,12 +135,7 @@
       cursor: pointer;
     }
 
-    .status-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 3px;
-      flex-shrink: 0;
-    }
+    .status-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
 
     .btn-limpar {
       background: transparent;
@@ -169,12 +149,8 @@
       font-weight: 600;
     }
 
-    .btn-limpar:hover {
-      background: #FEAF00;
-      color: #111;
-    }
+    .btn-limpar:hover { background: #FEAF00; color: #111; }
 
-    /* OVERLAY MOBILE */
     .sidebar-overlay {
       display: none;
       position: fixed;
@@ -183,11 +159,8 @@
       z-index: 200;
     }
 
-    .sidebar-overlay.ativo {
-      display: block;
-    }
+    .sidebar-overlay.ativo { display: block; }
 
-    /* CONTEÚDO PRINCIPAL */
     .container {
       flex: 1;
       padding: 28px 32px;
@@ -195,6 +168,13 @@
       flex-direction: column;
       gap: 32px;
       overflow-y: auto;
+    }
+
+    .loading {
+      color: #555;
+      font-size: 0.95rem;
+      padding: 40px;
+      text-align: center;
     }
 
     .empreendimento {
@@ -217,10 +197,7 @@
       gap: 8px;
     }
 
-    .emp-header h2 {
-      font-size: 1rem;
-      font-weight: 600;
-    }
+    .emp-header h2 { font-size: 1rem; font-weight: 600; }
 
     .emp-resumo {
       display: flex;
@@ -230,18 +207,9 @@
       flex-wrap: wrap;
     }
 
-    .emp-resumo span {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
+    .emp-resumo span { display: flex; align-items: center; gap: 5px; }
 
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      display: inline-block;
-    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
 
     .grade {
       padding: 20px;
@@ -264,28 +232,14 @@
       user-select: none;
     }
 
-    .unidade:hover {
-      transform: scale(1.08);
-      box-shadow: 0 4px 14px rgba(0,0,0,0.5);
-    }
-
+    .unidade:hover { transform: scale(1.08); box-shadow: 0 4px 14px rgba(0,0,0,0.5); }
     .unidade.disponivel { background: #2ecc71; color: white; }
     .unidade.reservado  { background: #FEAF00; color: #111; }
     .unidade.vendido    { background: #e74c3c; color: white; }
-
-    .unidade.oculto {
-      opacity: 0.12;
-      transform: none !important;
-    }
+    .unidade.oculto     { opacity: 0.12; transform: none !important; }
 
     .unidade .num   { font-size: 0.85rem; }
     .unidade .label { font-size: 0.6rem; opacity: 0.85; margin-top: 2px; }
-
-    .sem-resultados {
-      color: #555;
-      font-size: 0.85rem;
-      padding: 0 20px 20px;
-    }
 
     @media (max-width: 768px) {
       #btn-filtros-mobile { display: block; }
@@ -300,14 +254,8 @@
         padding-top: 60px;
       }
 
-      .sidebar.aberta {
-        left: 0;
-      }
-
-      .container {
-        padding: 16px;
-      }
-
+      .sidebar.aberta { left: 0; }
+      .container { padding: 16px; }
       .legenda { padding: 12px 16px; }
       header { padding: 14px 16px; }
     }
@@ -321,7 +269,7 @@
     <h1>Painel de Disponibilidade</h1>
   </div>
   <div class="header-right">
-    <span id="ultima-atualizacao">Atualizado agora</span>
+    <span id="ultima-atualizacao">Carregando...</span>
     <button id="btn-filtros-mobile" onclick="toggleSidebar()">⚙ Filtros</button>
   </div>
 </header>
@@ -333,7 +281,6 @@
 </div>
 
 <div class="layout">
-
   <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
 
   <aside class="sidebar" id="sidebar">
@@ -359,89 +306,53 @@
     <button class="btn-limpar" onclick="limparFiltros()">Limpar filtros</button>
   </aside>
 
-  <div class="container" id="painel"></div>
-
+  <div class="container" id="painel">
+    <div class="loading">Carregando dados da planilha...</div>
+  </div>
 </div>
 
 <script>
-  const empreendimentos = [
-    {
-      nome: "Residencial Vila Aurora",
-      unidades: gerarUnidades(52, [
-        { range: [1,10],  status: "vendido" },
-        { range: [11,18], status: "reservado" },
-        { range: [19,52], status: "disponivel" }
-      ])
-    },
-    {
-      nome: "Condomínio Jardins do Sul",
-      unidades: gerarUnidades(48, [
-        { range: [1,20],  status: "vendido" },
-        { range: [21,26], status: "reservado" },
-        { range: [27,48], status: "disponivel" }
-      ])
-    },
-    {
-      nome: "Parque das Flores",
-      unidades: gerarUnidades(60, [
-        { range: [1,30],  status: "vendido" },
-        { range: [31,40], status: "reservado" },
-        { range: [41,60], status: "disponivel" }
-      ])
-    },
-    {
-      nome: "Residencial Monte Verde",
-      unidades: gerarUnidades(55, [
-        { range: [1,5],   status: "vendido" },
-        { range: [6,12],  status: "reservado" },
-        { range: [13,55], status: "disponivel" }
-      ])
-    },
-    {
-      nome: "Alameda dos Ipês",
-      unidades: gerarUnidades(50, [
-        { range: [1,25],  status: "vendido" },
-        { range: [26,32], status: "reservado" },
-        { range: [33,50], status: "disponivel" }
-      ])
-    },
-    {
-      nome: "Reserva Boa Vista",
-      unidades: gerarUnidades(58, [
-        { range: [1,40],  status: "vendido" },
-        { range: [41,48], status: "reservado" },
-        { range: [49,58], status: "disponivel" }
-      ])
-    },
-    {
-      nome: "Solar das Palmeiras",
-      unidades: gerarUnidades(45, [
-        { range: [1,10],  status: "vendido" },
-        { range: [11,15], status: "reservado" },
-        { range: [16,45], status: "disponivel" }
-      ])
-    }
+  const SHEET_ID = "1wRorFx_SCPnQM2yEvkpWcF4pw9inoh0PjsFGszB7gi4";
+
+  const ABAS = [
+    { nome: "Residencial Vila Aurora",   gid: 0 },
+    { nome: "Condomínio Jardins do Sul", gid: 282558123 },
+    { nome: "Parque das Flores",         gid: 401574893 },
   ];
 
-  function gerarUnidades(total, regras) {
-    const unidades = [];
-    for (let i = 1; i <= total; i++) {
-      let status = "disponivel";
-      for (const regra of regras) {
-        if (i >= regra.range[0] && i <= regra.range[1]) {
-          status = regra.status;
-          break;
-        }
-      }
-      unidades.push({ numero: i, status });
+  let dadosEmpreendimentos = [];
+
+  async function carregarAba(aba) {
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${aba.gid}`;
+    const resp = await fetch(url);
+    const texto = await resp.text();
+    const linhas = texto.trim().split("\n").slice(1);
+    const unidades = linhas
+      .map(l => l.replace(/"/g, "").split(","))
+      .filter(cols => cols[0] && cols[1] && cols[1].trim() !== "")
+      .map(cols => ({
+        numero: cols[0].trim(),
+        status: cols[1].trim().toLowerCase()
+      }));
+    return { nome: aba.nome, unidades };
+  }
+
+  async function carregarTodos() {
+    try {
+      dadosEmpreendimentos = await Promise.all(ABAS.map(carregarAba));
+      renderPainel();
+      renderFiltrosEmpreendimentos();
+    } catch (e) {
+      document.getElementById("painel").innerHTML =
+        `<div class="loading">Erro ao carregar dados. Verifique se a planilha está publicada na web.</div>`;
     }
-    return unidades;
   }
 
   function labelStatus(status) {
     if (status === "disponivel") return "Livre";
     if (status === "reservado")  return "Reserv.";
     if (status === "vendido")    return "Vendido";
+    return status;
   }
 
   function contarStatus(unidades) {
@@ -451,57 +362,13 @@
     }, {});
   }
 
-  function renderFiltrosEmpreendimentos() {
-    const container = document.getElementById("filtros-empreendimentos");
-    empreendimentos.forEach((emp, i) => {
-      const label = document.createElement("label");
-      label.innerHTML = `
-        <input type="checkbox" checked data-emp="${i}" onchange="aplicarFiltros()">
-        ${emp.nome}
-      `;
-      container.appendChild(label);
-    });
-  }
-
-  function aplicarFiltros() {
-    const statusAtivos = Array.from(
-      document.querySelectorAll("[data-status]")
-    ).filter(el => el.checked).map(el => el.dataset.status);
-
-    const empsAtivos = Array.from(
-      document.querySelectorAll("[data-emp]")
-    ).filter(el => el.checked).map(el => parseInt(el.dataset.emp));
-
-    document.querySelectorAll(".empreendimento").forEach((card, i) => {
-      if (empsAtivos.includes(i)) {
-        card.style.display = "";
-        card.querySelectorAll(".unidade").forEach(u => {
-          const status = u.dataset.status;
-          u.classList.toggle("oculto", !statusAtivos.includes(status));
-        });
-      } else {
-        card.style.display = "none";
-      }
-    });
-  }
-
-  function limparFiltros() {
-    document.querySelectorAll("[data-status], [data-emp]").forEach(el => {
-      el.checked = true;
-    });
-    aplicarFiltros();
-  }
-
-  function toggleSidebar() {
-    document.getElementById("sidebar").classList.toggle("aberta");
-    document.getElementById("overlay").classList.toggle("ativo");
-  }
-
   function renderPainel() {
     const painel = document.getElementById("painel");
     painel.innerHTML = "";
 
-    empreendimentos.forEach((emp, i) => {
+    dadosEmpreendimentos.forEach((emp, i) => {
+      if (emp.unidades.length === 0) return;
+
       const contagem = contarStatus(emp.unidades);
       const disp  = contagem.disponivel || 0;
       const reserv = contagem.reservado  || 0;
@@ -536,6 +403,54 @@
     });
 
     atualizarTimestamp();
+    aplicarFiltros();
+  }
+
+  function renderFiltrosEmpreendimentos() {
+    const container = document.getElementById("filtros-empreendimentos");
+    container.innerHTML = "";
+    dadosEmpreendimentos.forEach((emp, i) => {
+      if (emp.unidades.length === 0) return;
+      const label = document.createElement("label");
+      label.innerHTML = `
+        <input type="checkbox" checked data-emp="${i}" onchange="aplicarFiltros()">
+        ${emp.nome}
+      `;
+      container.appendChild(label);
+    });
+  }
+
+  function aplicarFiltros() {
+    const statusAtivos = Array.from(
+      document.querySelectorAll("[data-status]")
+    ).filter(el => el.checked).map(el => el.dataset.status);
+
+    const empsAtivos = Array.from(
+      document.querySelectorAll("[data-emp]")
+    ).filter(el => el.checked).map(el => parseInt(el.dataset.emp));
+
+    document.querySelectorAll(".empreendimento").forEach((card, i) => {
+      if (empsAtivos.includes(i)) {
+        card.style.display = "";
+        card.querySelectorAll(".unidade").forEach(u => {
+          u.classList.toggle("oculto", !statusAtivos.includes(u.dataset.status));
+        });
+      } else {
+        card.style.display = "none";
+      }
+    });
+  }
+
+  function limparFiltros() {
+    document.querySelectorAll("[data-status], [data-emp]").forEach(el => {
+      el.checked = true;
+    });
+    aplicarFiltros();
+  }
+
+  function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("aberta");
+    document.getElementById("overlay").classList.toggle("ativo");
   }
 
   function atualizarTimestamp() {
@@ -544,8 +459,8 @@
     document.getElementById("ultima-atualizacao").textContent = `Atualizado às ${hora}`;
   }
 
-  renderPainel();
-  renderFiltrosEmpreendimentos();
+  carregarTodos();
+  setInterval(carregarTodos, 30000);
 </script>
 
 </body>
