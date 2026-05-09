@@ -313,37 +313,47 @@
 
 <script>
   const SHEET_ID = "1wRorFx_SCPnQM2yEvkpWcF4pw9inoh0PjsFGszB7gi4";
-
-  const ABAS = [
-    { nome: "Residencial Vila Aurora",   gid: 0 },
-    { nome: "Condomínio Jardins do Sul", gid: 282558123 },
-    { nome: "Parque das Flores",         gid: 401574893 },
-  ];
+  const CONFIG_GID = 0; // substituir pelo gid real da aba config
 
   let dadosEmpreendimentos = [];
 
+  function normalizar(str) {
+    return str.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
+
+  async function carregarConfig() {
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${CONFIG_GID}`;
+    const resp = await fetch(url);
+    const texto = await resp.text();
+    const linhas = texto.trim().split("\n").slice(1);
+    return linhas
+      .map(l => l.replace(/"/g, "").split(","))
+      .filter(cols => cols[0] && cols[1] && cols[1].trim() !== "")
+      .map(cols => ({
+        nome: cols[0].trim(),
+        gid: parseInt(cols[1].trim())
+      }));
+  }
+
   async function carregarAba(aba) {
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${aba.gid}`;
-  const resp = await fetch(url);
-  const texto = await resp.text();
-  const linhas = texto.trim().split("\n").slice(1);
-  const unidades = linhas
-    .map(l => l.replace(/"/g, "").split(","))
-    .filter(cols => cols[0] && cols[1] && cols[1].trim() !== "")
-    .map(cols => {
-      const statusRaw = cols[1].trim().toLowerCase()
-        .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-      return {
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${aba.gid}`;
+    const resp = await fetch(url);
+    const texto = await resp.text();
+    const linhas = texto.trim().split("\n").slice(1);
+    const unidades = linhas
+      .map(l => l.replace(/"/g, "").split(","))
+      .filter(cols => cols[0] && cols[1] && cols[1].trim() !== "")
+      .map(cols => ({
         numero: cols[0].trim(),
-        status: statusRaw
-      };
-    });
-  return { nome: aba.nome, unidades };
-}
+        status: normalizar(cols[1])
+      }));
+    return { nome: aba.nome, unidades };
+  }
 
   async function carregarTodos() {
     try {
-      dadosEmpreendimentos = await Promise.all(ABAS.map(carregarAba));
+      const abas = await carregarConfig();
+      dadosEmpreendimentos = await Promise.all(abas.map(carregarAba));
       renderPainel();
       renderFiltrosEmpreendimentos();
     } catch (e) {
@@ -374,9 +384,9 @@
       if (emp.unidades.length === 0) return;
 
       const contagem = contarStatus(emp.unidades);
-      const disp  = contagem.disponivel || 0;
-      const reserv = contagem.reservado  || 0;
-      const vend  = contagem.vendido    || 0;
+      const disp   = contagem.disponivel || 0;
+      const reserv  = contagem.reservado  || 0;
+      const vend   = contagem.vendido    || 0;
 
       const div = document.createElement("div");
       div.className = "empreendimento";
