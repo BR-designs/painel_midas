@@ -40,7 +40,6 @@
       color: white;
     }
 
-    /* LOGIN */
     #tela-login {
       display: flex;
       align-items: center;
@@ -60,17 +59,8 @@
       gap: 20px;
     }
 
-    .login-box h2 {
-      font-size: 1.1rem;
-      color: #FEAF00;
-      text-align: center;
-    }
-
-    .login-box p {
-      font-size: 0.85rem;
-      color: #888;
-      text-align: center;
-    }
+    .login-box h2 { font-size: 1.1rem; color: #FEAF00; text-align: center; }
+    .login-box p  { font-size: 0.85rem; color: #888; text-align: center; }
 
     .login-erro {
       background: #3a1a1a;
@@ -82,7 +72,6 @@
       display: none;
     }
 
-    /* LAYOUT GESTOR */
     #tela-gestor { display: none; }
 
     .gestor-layout {
@@ -142,7 +131,6 @@
 
     .btn-novo-emp:hover { opacity: 0.85; }
 
-    /* CONTEÚDO PRINCIPAL */
     .gestor-main {
       flex: 1;
       padding: 28px 32px;
@@ -168,20 +156,11 @@
       margin-bottom: 20px;
     }
 
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .form-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
     .form-grid.cols-1 { grid-template-columns: 1fr; }
 
-    .form-grupo {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
+    .form-grupo { display: flex; flex-direction: column; gap: 6px; }
 
     .form-grupo label {
       font-size: 0.78rem;
@@ -204,7 +183,6 @@
 
     .form-grupo input:focus,
     .form-grupo select:focus { border-color: #FEAF00; }
-
     .form-grupo select option { background: #1a1a1a; }
 
     .btn-salvar {
@@ -223,12 +201,19 @@
     .btn-salvar:hover { opacity: 0.85; }
     .btn-salvar:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* UNIDADES */
     .unidades-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .unidades-acoes {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     .unidades-grade {
@@ -251,6 +236,7 @@
       transition: transform 0.15s, box-shadow 0.15s;
       user-select: none;
       border: 2px solid transparent;
+      position: relative;
     }
 
     .unidade-card:hover { transform: scale(1.08); box-shadow: 0 4px 14px rgba(0,0,0,0.5); }
@@ -261,6 +247,24 @@
 
     .unidade-card .num   { font-size: 0.85rem; }
     .unidade-card .label { font-size: 0.58rem; opacity: 0.85; margin-top: 1px; }
+
+    .btn-duplicar-card {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      background: rgba(0,0,0,0.35);
+      border: none;
+      border-radius: 4px;
+      color: white;
+      font-size: 0.6rem;
+      padding: 1px 4px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.15s;
+      line-height: 1.4;
+    }
+
+    .unidade-card:hover .btn-duplicar-card { opacity: 1; }
 
     .btn-nova-unidade {
       background: transparent;
@@ -276,7 +280,20 @@
 
     .btn-nova-unidade:hover { background: #FEAF00; color: #111; }
 
-    /* MODAL */
+    .btn-lote {
+      background: transparent;
+      border: 1px dashed #888;
+      color: #888;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .btn-lote:hover { border-color: #FEAF00; color: #FEAF00; }
+
     .modal-overlay {
       display: none;
       position: fixed;
@@ -303,11 +320,7 @@
       gap: 20px;
     }
 
-    .modal-titulo {
-      font-size: 1rem;
-      font-weight: 700;
-      color: #FEAF00;
-    }
+    .modal-titulo { font-size: 1rem; font-weight: 700; color: #FEAF00; }
 
     .modal-acoes {
       display: flex;
@@ -328,7 +341,49 @@
 
     .btn-cancelar:hover { border-color: #888; color: #f0f0f0; }
 
-    /* TOAST */
+    .info-lote {
+      background: #111;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 0.82rem;
+      color: #888;
+      line-height: 1.6;
+    }
+
+    .progresso-lote {
+      background: #111;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      padding: 16px;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .progresso-lote.visivel { display: flex; }
+
+    .barra-progresso-bg {
+      background: #222;
+      border-radius: 99px;
+      height: 8px;
+      overflow: hidden;
+    }
+
+    .barra-progresso-fill {
+      background: #FEAF00;
+      height: 100%;
+      border-radius: 99px;
+      width: 0%;
+      transition: width 0.3s;
+    }
+
+    .progresso-texto {
+      font-size: 0.82rem;
+      color: #888;
+      text-align: center;
+    }
+
     .toast {
       position: fixed;
       bottom: 32px;
@@ -354,6 +409,12 @@
       font-size: 0.9rem;
       text-align: center;
       padding: 40px;
+    }
+
+    .divider-modal {
+      border: none;
+      border-top: 1px solid #2a2a2a;
+      margin: 0;
     }
 
     @media (max-width: 768px) {
@@ -486,7 +547,7 @@
         <input type="text" id="und-rua" placeholder="Ex: Rua das Flores">
       </div>
       <div class="form-grupo">
-        <label>Número</label>
+        <label>Número da Casa</label>
         <input type="text" id="und-numero-casa" placeholder="Ex: 42">
       </div>
     </div>
@@ -497,6 +558,90 @@
     <div class="modal-acoes">
       <button class="btn-cancelar" onclick="fecharModal('modal-unidade')">Cancelar</button>
       <button class="btn-salvar" id="btn-salvar-und" onclick="salvarUnidade()">Salvar Unidade</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CADASTRO EM LOTE -->
+<div class="modal-overlay" id="modal-lote">
+  <div class="modal">
+    <div class="modal-titulo">Cadastro em Lote</div>
+
+    <div class="info-lote">
+      Preencha os dados comuns a todas as unidades e defina o intervalo de numeração. O número de cada unidade será incrementado automaticamente. O campo <strong>"Número da Casa"</strong> também será incrementado se preenchido.
+    </div>
+
+    <div class="form-grid cols-3">
+      <div class="form-grupo">
+        <label>Número inicial *</label>
+        <input type="number" id="lote-inicio" placeholder="Ex: 1" min="1">
+      </div>
+      <div class="form-grupo">
+        <label>Número final *</label>
+        <input type="number" id="lote-fim" placeholder="Ex: 50" min="1">
+      </div>
+      <div class="form-grupo">
+        <label>Prefixo (opcional)</label>
+        <input type="text" id="lote-prefixo" placeholder="Ex: Casa, Apto">
+      </div>
+    </div>
+
+    <hr class="divider-modal">
+
+    <div class="form-grid cols-3">
+      <div class="form-grupo">
+        <label>Status *</label>
+        <select id="lote-status">
+          <option value="disponivel">Disponível</option>
+          <option value="reservado">Reservado</option>
+          <option value="vendido">Vendido</option>
+        </select>
+      </div>
+      <div class="form-grupo">
+        <label>Valor (R$)</label>
+        <input type="text" id="lote-valor" placeholder="Ex: 350.000">
+      </div>
+      <div class="form-grupo">
+        <label>Metragem (m²)</label>
+        <input type="text" id="lote-metragem" placeholder="Ex: 72">
+      </div>
+      <div class="form-grupo">
+        <label>Quartos</label>
+        <input type="number" id="lote-quartos" placeholder="Ex: 2" min="0">
+      </div>
+      <div class="form-grupo">
+        <label>Banheiros</label>
+        <input type="number" id="lote-banheiros" placeholder="Ex: 1" min="0">
+      </div>
+      <div class="form-grupo">
+        <label>Suítes</label>
+        <input type="number" id="lote-suites" placeholder="Ex: 1" min="0">
+      </div>
+      <div class="form-grupo">
+        <label>Rua</label>
+        <input type="text" id="lote-rua" placeholder="Ex: Rua das Flores">
+      </div>
+      <div class="form-grupo">
+        <label>Número inicial da casa</label>
+        <input type="number" id="lote-numero-casa" placeholder="Ex: 10 (incrementa junto)">
+      </div>
+    </div>
+
+    <div class="form-grupo">
+      <label>Observação</label>
+      <input type="text" id="lote-observacao" placeholder="Será a mesma para todas as unidades">
+    </div>
+
+    <div class="progresso-lote" id="progresso-lote">
+      <div class="progresso-texto" id="progresso-texto">Cadastrando...</div>
+      <div class="barra-progresso-bg">
+        <div class="barra-progresso-fill" id="barra-fill"></div>
+      </div>
+    </div>
+
+    <div class="modal-acoes">
+      <button class="btn-cancelar" id="btn-cancelar-lote" onclick="fecharModal('modal-lote')">Cancelar</button>
+      <button class="btn-salvar" id="btn-salvar-lote" onclick="salvarLote()">Cadastrar Unidades</button>
     </div>
   </div>
 </div>
@@ -542,7 +687,7 @@
       lista.innerHTML = `<div style="color:#555;font-size:0.8rem;padding:8px 4px">Nenhum empreendimento cadastrado</div>`;
       return;
     }
-    empreendimentos.forEach((emp, i) => {
+    empreendimentos.forEach(emp => {
       const div = document.createElement("div");
       div.className = "emp-item" + (empAtivo && empAtivo.nome === emp.nome ? " ativo" : "");
       div.textContent = emp.nome;
@@ -647,7 +792,10 @@
       <div class="secao">
         <div class="unidades-header">
           <div class="secao-titulo" style="margin-bottom:0">Unidades</div>
-          <button class="btn-nova-unidade" onclick="abrirModalUnidade()">+ Nova Unidade</button>
+          <div class="unidades-acoes">
+            <button class="btn-lote" onclick="abrirModalLote()">⚡ Cadastro em Lote</button>
+            <button class="btn-nova-unidade" onclick="abrirModalUnidade()">+ Nova Unidade</button>
+          </div>
         </div>
         <div class="unidades-grade" id="grade-unidades"></div>
       </div>
@@ -656,7 +804,7 @@
     const grade = document.getElementById("grade-unidades");
 
     if (unidades.length === 0) {
-      grade.innerHTML = `<div class="placeholder-vazio" style="grid-column:1/-1">Nenhuma unidade cadastrada. Clique em "+ Nova Unidade" para começar.</div>`;
+      grade.innerHTML = `<div class="placeholder-vazio" style="grid-column:1/-1">Nenhuma unidade cadastrada. Clique em "+ Nova Unidade" ou "Cadastro em Lote" para começar.</div>`;
       return;
     }
 
@@ -664,12 +812,43 @@
       const status = normalizar(u.status);
       const el = document.createElement("div");
       el.className = `unidade-card ${status}`;
-      el.innerHTML = `<span class="num">${u.unidade}</span><span class="label">${labelStatus(status)}</span>`;
-      el.onclick = () => abrirModalUnidade(u);
+      el.innerHTML = `
+        <span class="num">${u.unidade}</span>
+        <span class="label">${labelStatus(status)}</span>
+        <button class="btn-duplicar-card" title="Duplicar unidade" onclick="duplicarUnidade(event, ${JSON.stringify(u).replace(/"/g, '&quot;')})">⧉</button>
+      `;
+      el.addEventListener("click", (e) => {
+        if (!e.target.classList.contains("btn-duplicar-card")) {
+          abrirModalUnidade(u);
+        }
+      });
       grade.appendChild(el);
     });
   }
 
+  // ── DUPLICAR UNIDADE ───────────────────────────────
+  function duplicarUnidade(event, u) {
+    event.stopPropagation();
+    // Abre modal com dados preenchidos mas número em branco para o gestor definir
+    unidadeEditando = null;
+    document.getElementById("modal-und-titulo").textContent = `Duplicar Unidade ${u.unidade}`;
+    document.getElementById("und-numero").value = "";
+    document.getElementById("und-numero").disabled = false;
+    document.getElementById("und-status").value = normalizar(u.status);
+    document.getElementById("und-valor").value = u.valor || "";
+    document.getElementById("und-metragem").value = u.metragem || "";
+    document.getElementById("und-quartos").value = u.quartos || "";
+    document.getElementById("und-banheiros").value = u.banheiros || "";
+    document.getElementById("und-suites").value = u.suites || "";
+    document.getElementById("und-rua").value = u.rua || "";
+    document.getElementById("und-numero-casa").value = u.numero || "";
+    document.getElementById("und-observacao").value = u.observacao || "";
+    abrirModal("modal-unidade");
+    // Foca no campo de número para facilitar
+    setTimeout(() => document.getElementById("und-numero").focus(), 100);
+  }
+
+  // ── MODAL UNIDADE ──────────────────────────────────
   function abrirModalUnidade(u = null) {
     unidadeEditando = u;
     document.getElementById("modal-und-titulo").textContent = u ? `Editar Unidade ${u.unidade}` : "Nova Unidade";
@@ -742,6 +921,111 @@
     btn.textContent = "Salvar Unidade";
   }
 
+  // ── CADASTRO EM LOTE ───────────────────────────────
+  function abrirModalLote() {
+    // Limpa campos
+    ["lote-inicio","lote-fim","lote-prefixo","lote-valor","lote-metragem",
+     "lote-quartos","lote-banheiros","lote-suites","lote-rua","lote-numero-casa","lote-observacao"
+    ].forEach(id => document.getElementById(id).value = "");
+    document.getElementById("lote-status").value = "disponivel";
+    document.getElementById("progresso-lote").classList.remove("visivel");
+    document.getElementById("btn-salvar-lote").disabled = false;
+    document.getElementById("btn-salvar-lote").textContent = "Cadastrar Unidades";
+    document.getElementById("btn-cancelar-lote").disabled = false;
+    abrirModal("modal-lote");
+  }
+
+  async function salvarLote() {
+    if (!empAtivo) {
+      mostrarToast("Selecione um empreendimento", true);
+      return;
+    }
+
+    const inicio = parseInt(document.getElementById("lote-inicio").value);
+    const fim    = parseInt(document.getElementById("lote-fim").value);
+    const prefixo = document.getElementById("lote-prefixo").value.trim();
+
+    if (isNaN(inicio) || isNaN(fim) || inicio > fim) {
+      mostrarToast("Defina um intervalo válido (início ≤ fim)", true);
+      return;
+    }
+
+    if (fim - inicio > 199) {
+      mostrarToast("Máximo de 200 unidades por lote", true);
+      return;
+    }
+
+    const status    = document.getElementById("lote-status").value;
+    const valor     = document.getElementById("lote-valor").value.trim();
+    const metragem  = document.getElementById("lote-metragem").value.trim();
+    const quartos   = document.getElementById("lote-quartos").value.trim();
+    const banheiros = document.getElementById("lote-banheiros").value.trim();
+    const suites    = document.getElementById("lote-suites").value.trim();
+    const rua       = document.getElementById("lote-rua").value.trim();
+    const numeroCasaInicio = document.getElementById("lote-numero-casa").value.trim();
+    const observacao = document.getElementById("lote-observacao").value.trim();
+
+    const total = fim - inicio + 1;
+    let concluidos = 0;
+
+    const btnSalvar   = document.getElementById("btn-salvar-lote");
+    const btnCancelar = document.getElementById("btn-cancelar-lote");
+    const progresso   = document.getElementById("progresso-lote");
+    const barraFill   = document.getElementById("barra-fill");
+    const progressoTexto = document.getElementById("progresso-texto");
+
+    btnSalvar.disabled = true;
+    btnCancelar.disabled = true;
+    progresso.classList.add("visivel");
+
+    for (let i = inicio; i <= fim; i++) {
+      const nomeUnidade = prefixo ? `${prefixo} ${i}` : String(i);
+      const numeroCasa  = numeroCasaInicio
+        ? String(parseInt(numeroCasaInicio) + (i - inicio))
+        : "";
+
+      const payload = {
+        acao: "cadastrarUnidade",
+        empreendimento: empAtivo.nome,
+        unidade: nomeUnidade,
+        status,
+        valor,
+        metragem,
+        quartos,
+        banheiros,
+        suites,
+        rua,
+        numero: numeroCasa,
+        observacao
+      };
+
+      try {
+        await fetch(SCRIPT_URL, {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+      } catch (e) {
+        // continua mesmo se uma falhar
+      }
+
+      concluidos++;
+      const pct = Math.round((concluidos / total) * 100);
+      barraFill.style.width = `${pct}%`;
+      progressoTexto.textContent = `Cadastrando ${concluidos} de ${total}...`;
+
+      // Pequena pausa para não sobrecarregar o Apps Script
+      await new Promise(r => setTimeout(r, 300));
+    }
+
+    progressoTexto.textContent = `✅ ${total} unidades cadastradas com sucesso!`;
+    barraFill.style.width = "100%";
+    btnCancelar.disabled = false;
+    btnCancelar.textContent = "Fechar";
+
+    mostrarToast(`${total} unidades cadastradas!`);
+    carregarUnidades(empAtivo);
+  }
+
   // ── UTILITÁRIOS ────────────────────────────────────
   function normalizar(str) {
     if (!str) return "";
@@ -770,7 +1054,6 @@
     setTimeout(() => t.className = "toast" + (erro ? " erro" : ""), 3000);
   }
 
-  // Fecha modal clicando fora
   document.querySelectorAll(".modal-overlay").forEach(overlay => {
     overlay.addEventListener("click", e => {
       if (e.target === overlay) overlay.classList.remove("ativo");
