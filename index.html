@@ -166,6 +166,18 @@
       text-align: center;
     }
 
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid #2a2a2a;
+      border-top-color: #FEAF00;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
     .empreendimento {
       background: #1a1a1a;
       border-radius: 12px;
@@ -239,7 +251,6 @@
     .unidade .num   { font-size: 0.85rem; }
     .unidade .label { font-size: 0.6rem; opacity: 0.85; margin-top: 2px; }
 
-    /* MODAL */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -275,7 +286,6 @@
       gap: 12px;
     }
 
-    .modal-topo-info {}
     .modal-emp-nome { font-size: 0.72rem; color: #FEAF00; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; }
     .modal-und-titulo { font-size: 1.3rem; font-weight: 700; color: white; margin-top: 4px; }
 
@@ -304,11 +314,7 @@
       margin-bottom: 12px;
     }
 
-    .modal-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
+    .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
     .modal-campo { display: flex; flex-direction: column; gap: 3px; }
 
@@ -319,18 +325,8 @@
       color: #666;
     }
 
-    .modal-campo-valor {
-      font-size: 0.92rem;
-      color: #f0f0f0;
-      font-weight: 500;
-    }
-
-    .modal-campo-valor.destaque {
-      font-size: 1.1rem;
-      color: #FEAF00;
-      font-weight: 700;
-    }
-
+    .modal-campo-valor { font-size: 0.92rem; color: #f0f0f0; font-weight: 500; }
+    .modal-campo-valor.destaque { font-size: 1.1rem; color: #FEAF00; font-weight: 700; }
     .modal-campo-valor.vazio { color: #444; font-style: italic; font-size: 0.82rem; }
 
     .modal-divider { border: none; border-top: 1px solid #2a2a2a; }
@@ -427,7 +423,10 @@
   </aside>
 
   <div class="container" id="painel">
-    <div class="loading">Carregando dados da planilha...</div>
+    <div class="loading">
+      <div class="spinner"></div>
+      Carregando dados...
+    </div>
   </div>
 </div>
 
@@ -523,7 +522,6 @@
 </div>
 
 <script>
-  const SHEET_ID = "1wRorFx_SCPnQM2yEvkpWcF4pw9inoh0PjsFGszB7gi4";
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7_w7xFBHm0XPTqtC8KmK39QNAHCXjUKC1XIEHzFQpzSeFZvyxOwAym5Lw8T53nIOBpA/exec";
 
   let dadosEmpreendimentos = [];
@@ -550,7 +548,6 @@
     }
   }
 
-  // Carrega empreendimentos e unidades via Apps Script
   async function carregarTodos() {
     try {
       const resp = await fetch(`${SCRIPT_URL}?acao=listarEmpreendimentos`);
@@ -569,8 +566,10 @@
         };
       }));
 
-      renderPainel();
+      // ✅ CORREÇÃO: filtros primeiro, painel depois
       renderFiltrosEmpreendimentos();
+      renderPainel();
+
     } catch (e) {
       document.getElementById("painel").innerHTML =
         `<div class="loading">Erro ao carregar dados. Verifique a conexão com o Apps Script.</div>`;
@@ -596,6 +595,20 @@
       acc[u.statusNorm] = (acc[u.statusNorm] || 0) + 1;
       return acc;
     }, {});
+  }
+
+  function renderFiltrosEmpreendimentos() {
+    const container = document.getElementById("filtros-empreendimentos");
+    container.innerHTML = "";
+    dadosEmpreendimentos.forEach((emp, i) => {
+      if (emp.unidades.length === 0) return;
+      const label = document.createElement("label");
+      label.innerHTML = `
+        <input type="checkbox" checked data-emp="${i}" onchange="aplicarFiltros()">
+        ${emp.nome}
+      `;
+      container.appendChild(label);
+    });
   }
 
   function renderPainel() {
@@ -658,7 +671,6 @@
     badge.textContent = labelStatusCompleto(status);
     badge.className = `modal-status-badge ${status}`;
 
-    // Valor formatado
     const valorEl = document.getElementById("md-valor");
     if (u.valor && String(u.valor).trim() !== "") {
       const num = parseFloat(String(u.valor).replace(/\./g, "").replace(",", "."));
@@ -704,20 +716,6 @@
   document.addEventListener("keydown", function(e) {
     if (e.key === "Escape") fecharModal();
   });
-
-  function renderFiltrosEmpreendimentos() {
-    const container = document.getElementById("filtros-empreendimentos");
-    container.innerHTML = "";
-    dadosEmpreendimentos.forEach((emp, i) => {
-      if (emp.unidades.length === 0) return;
-      const label = document.createElement("label");
-      label.innerHTML = `
-        <input type="checkbox" checked data-emp="${i}" onchange="aplicarFiltros()">
-        ${emp.nome}
-      `;
-      container.appendChild(label);
-    });
-  }
 
   function aplicarFiltros() {
     const statusAtivos = Array.from(
