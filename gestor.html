@@ -690,6 +690,11 @@
       <label>Observação</label>
       <input type="text" id="und-observacao" placeholder="Ex: Vista para o lago...">
     </div>
+    <!-- NOVO CAMPO AQUI -->
+      <div class="form-grupo">
+        <label>Link Repositório</label>
+        <input type="url" id="und-link-repositorio" placeholder="Ex: https://fotos.google.com/empreendimento-x">
+      </div>
     <div class="modal-acoes">
       <button class="btn-perigo" id="btn-deletar-und" onclick="confirmarDeletarUnidade()" style="margin-right:auto; display:none">🗑 Deletar</button>
       <button class="btn-cancelar" onclick="fecharModal('modal-unidade')">Cancelar</button>
@@ -1158,6 +1163,7 @@
     document.getElementById("und-rua").value = u ? u.rua : "";
     document.getElementById("und-numero-casa").value = u ? u.numero : "";
     document.getElementById("und-observacao").value = u ? u.observacao : "";
+    document.getElementById("und-link-repositorio").value = u ? u.linkRepositorio : ""; // NOVO CAMPO
 
     // Mostra botão de deletar apenas ao editar
     document.getElementById("btn-deletar-und").style.display = u ? "block" : "none";
@@ -1248,7 +1254,8 @@
       suites: document.getElementById("und-suites").value.trim(),
       rua: document.getElementById("und-rua").value.trim(),
       numero: document.getElementById("und-numero-casa").value.trim(),
-      observacao: document.getElementById("und-observacao").value.trim()
+      observacao: document.getElementById("und-observacao").value.trim(),
+      linkRepositorio: document.getElementById("und-link-repositorio").value.trim() // NOVO CAMPO
     };
 
     try {
@@ -1289,6 +1296,7 @@
     document.getElementById("und-rua").value = u.rua || "";
     document.getElementById("und-numero-casa").value = u.numero || "";
     document.getElementById("und-observacao").value = u.observacao || "";
+    document.getElementById("und-link-repositorio").value = u.linkRepositorio || ""; // NOVO CAMPO
     document.getElementById("btn-deletar-und").style.display = "none";
     abrirModal("modal-unidade");
     setTimeout(() => document.getElementById("und-numero").focus(), 100);
