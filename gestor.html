@@ -737,11 +737,11 @@
       </div>
       <div class="form-grupo">
         <label>Número final *</label>
-        <input type="number" id="lote-fim" placeholder="Ex: 20" min="1">
+        <input type="number" id="lote-fim" placeholder="Ex: 10" min="1">
       </div>
       <div class="form-grupo">
         <label>Prefixo (opcional)</label>
-        <input type="text" id="lote-prefixo" placeholder="Ex: Casa, Apto">
+        <input type="text" id="lote-prefixo" placeholder="Ex: Casa, Apt">
       </div>
     </div>
 
@@ -795,10 +795,10 @@
     </div>
 
     <div class="progresso-lote" id="progresso-lote">
-      <div class="progresso-texto" id="progresso-texto">Cadastrando 0 de 0...</div>
       <div class="barra-progresso-bg">
         <div class="barra-progresso-fill" id="barra-fill"></div>
       </div>
+      <span class="progresso-texto" id="progresso-texto">Cadastrando...</span>
     </div>
 
     <div class="modal-acoes">
@@ -808,11 +808,11 @@
   </div>
 </div>
 
-<!-- MODAL CONFIRMAR -->
-<div class="modal-overlay modal-pequeno" id="modal-confirmar">
-  <div class="modal">
+<!-- MODAL CONFIRMAÇÃO -->
+<div class="modal-overlay" id="modal-confirmar">
+  <div class="modal modal-pequeno">
     <div class="modal-titulo" id="confirmar-titulo">Confirmar Ação</div>
-    <div id="confirmar-texto">Tem certeza?</div>
+    <div class="aviso-perigo" id="confirmar-texto">Tem certeza que deseja realizar esta ação?</div>
     <div class="modal-acoes">
       <button class="btn-cancelar" onclick="fecharModal('modal-confirmar')">Cancelar</button>
       <button class="btn-perigo" id="btn-confirmar-acao">Confirmar</button>
@@ -820,36 +820,64 @@
   </div>
 </div>
 
-<div class="toast" id="toast">Mensagem de Toast</div>
+<div id="toast" class="toast"></div>
 
 <script>
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz5mftum097bcnS0ddUjxVhis1O2XchUNzf3StGKeNoil5A8iT6TiOV1besENzC9yB9cg/exec"; // ATUALIZE COM A SUA URL DO APPS SCRIPT
-  const SENHA_GESTOR = "midas2025"; // ATUALIZE COM A SENHA DESEJADA
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz5mftum097bcnS0ddUjxVhis1O2XchUNzf3StGKeNoil5A8iT6TiOV1besENzC9yB9cg/exec"; // ATUALIZE COM A URL DO SEU APPS SCRIPT
 
+  let empreendimentos = [];
   let empAtivo = null;
   let unidadeEditando = null;
   let modoSelecao = false;
-  const unidadesSelecionadas = new Set();
+  let unidadesSelecionadas = new Set(); // Armazena IDs únicos das unidades selecionadas
 
-  // ── LOGIN ──────────────────────────────────────────
-  function fazerLogin() {
-    const senhaDigitada = document.getElementById("input-senha").value;
-    if (senhaDigitada === SENHA_GESTOR) {
+  document.addEventListener("DOMContentLoaded", () => {
+    // Tenta fazer login automaticamente se a senha estiver salva
+    const senhaSalva = localStorage.getItem("midasGestorSenha");
+    if (senhaSalva) {
+      document.getElementById("input-senha").value = senhaSalva;
+      fazerLogin();
+    }
+  });
+
+  // ── AUTENTICAÇÃO ───────────────────────────────────
+  async function fazerLogin() {
+    const senhaInput = document.getElementById("input-senha").value;
+    const loginErro = document.getElementById("login-erro");
+
+    if (senhaInput === "midas2025") { // Senha fixa para acesso
+      localStorage.setItem("midasGestorSenha", senhaInput);
       document.getElementById("tela-login").style.display = "none";
       document.getElementById("tela-gestor").style.display = "block";
       carregarEmpreendimentos();
     } else {
-      document.getElementById("login-erro").style.display = "block";
+      loginErro.style.display = "block";
+      setTimeout(() => loginErro.style.display = "none", 3000);
     }
+  }
+
+  // ── SIDEBAR ────────────────────────────────────────
+  function toggleSidebar() {
+    const sidebar = document.getElementById("gestor-sidebar");
+    const overlay = document.getElementById("sidebar-overlay");
+    sidebar.classList.toggle("aberta");
+    overlay.classList.toggle("ativo");
+  }
+
+  function fecharSidebar() {
+    const sidebar = document.getElementById("gestor-sidebar");
+    const overlay = document.getElementById("sidebar-overlay");
+    sidebar.classList.remove("aberta");
+    overlay.classList.remove("ativo");
   }
 
   // ── EMPREENDIMENTOS ────────────────────────────────
   async function carregarEmpreendimentos() {
-    document.getElementById("lista-empreendimentos").innerHTML = "";
-    document.getElementById("gestor-main").innerHTML = `
-      <div class="loading-main">
-        <div class="spinner"></div>
-        Carregando empreendimentos...
+    const listaEmp = document.getElementById("lista-empreendimentos");
+    listaEmp.innerHTML = `
+      <div class="loading-main" style="padding:20px 0;">
+        <div class="spinner" style="width:20px;height:20px;border-width:2px;"></div>
+        Carregando...
       </div>
     `;
 
@@ -857,54 +885,52 @@
       const resp = await fetch(SCRIPT_URL + "?acao=listarEmpreendimentos");
       const dados = await resp.json();
 
-      if (dados.empreendimentos && dados.empreendimentos.length > 0) {
-        renderListaEmpreendimentos(dados.empreendimentos);
-        selecionarEmpreendimento(dados.empreendimentos[0]); // Seleciona o primeiro por padrão
+      if (dados.empreendimentos) {
+        empreendimentos = dados.empreendimentos;
+        renderListaEmpreendimentos(empreendimentos);
+        if (empreendimentos.length > 0) {
+          // Seleciona o primeiro empreendimento por padrão, ou o que estava ativo
+          const empSalvo = localStorage.getItem("midasGestorEmpAtivo");
+          const empParaSelecionar = empSalvo ? empreendimentos.find(e => e.nome === empSalvo) : empreendimentos[0];
+          selecionarEmpreendimento(empParaSelecionar || empreendimentos[0]);
+        } else {
+          document.getElementById("gestor-main").innerHTML = `<div class="placeholder-vazio">Nenhum empreendimento cadastrado.</div>`;
+        }
       } else {
-        document.getElementById("gestor-main").innerHTML = `
-          <div class="placeholder-vazio">Nenhum empreendimento cadastrado.</div>
-        `;
+        mostrarToast("Erro ao carregar empreendimentos: " + dados.erro, true);
+        document.getElementById("gestor-main").innerHTML = `<div class="placeholder-vazio">Erro ao carregar empreendimentos.</div>`;
       }
     } catch (e) {
-      mostrarToast("Erro ao carregar empreendimentos", true);
-      document.getElementById("gestor-main").innerHTML = `
-        <div class="placeholder-vazio" style="color:#e74c3c;">Erro ao carregar empreendimentos.</div>
-      `;
+      mostrarToast("Erro de conexão ao carregar empreendimentos", true);
+      document.getElementById("gestor-main").innerHTML = `<div class="placeholder-vazio">Erro de conexão.</div>`;
     }
   }
 
-  function renderListaEmpreendimentos(empreendimentos) {
-    const lista = document.getElementById("lista-empreendimentos");
-    lista.innerHTML = "";
-    empreendimentos.forEach(emp => {
-      const div = document.createElement("div");
-      div.className = "emp-item";
-      div.textContent = emp.nome;
-      div.onclick = () => selecionarEmpreendimento(emp);
-      lista.appendChild(div);
+  function renderListaEmpreendimentos(lista) {
+    const listaEmp = document.getElementById("lista-empreendimentos");
+    listaEmp.innerHTML = "";
+    if (lista.length === 0) {
+      listaEmp.innerHTML = `<div class="placeholder-vazio" style="padding:10px 0;">Nenhum empreendimento.</div>`;
+      return;
+    }
+    lista.forEach(emp => {
+      const el = document.createElement("div");
+      el.className = "emp-item";
+      el.textContent = emp.nome;
+      el.dataset.gid = emp.gid; // Armazena o GID no dataset
+      el.addEventListener("click", () => selecionarEmpreendimento(emp));
+      listaEmp.appendChild(el);
     });
   }
 
-    async function selecionarEmpreendimento(emp) {
+  async function selecionarEmpreendimento(emp) {
     empAtivo = emp;
+    localStorage.setItem("midasGestorEmpAtivo", emp.nome); // Salva o empreendimento ativo
 
     // Atualiza o estado visual da lista de empreendimentos
     document.querySelectorAll(".emp-item").forEach(item => {
-      // --- ADICIONE ESTAS LINHAS DO CONSOLE.LOG AQUI ---
-      console.log("Debug selecionarEmpreendimento:", {
-        itemElement: item,
-        itemDatasetGid: item.dataset.gid,
-        empObject: emp,
-        empGid: emp.gid,
-        stringEmpGid: String(emp.gid)
-      });
-      // --- ESTA É A LINHA QUE ESTAVA CAUSANDO O ERRO E DEVE SER MANTIDA ---
       item.classList.toggle("ativo", item.dataset.gid === String(emp.gid));
     });
-
-    // Remova a linha que você adicionou fora do forEach, como esta:
-    // document.querySelector(`.emp-item:nth-child(${emp.empreendimentos.indexOf(emp) + 1})`)?.classList.add("ativo");
-    // Ela não é necessária com o forEach acima.
 
     // Renderiza o painel principal do empreendimento
     document.getElementById("gestor-main").innerHTML = `
@@ -912,7 +938,7 @@
         <div class="unidades-header">
           <h3 class="secao-titulo">${emp.nome} <span style="font-size:0.7em;color:#888;">(${emp.construtora} - ${emp.cidade})</span></h3>
           <div class="unidades-acoes">
-            <button class="btn-selecionar" id="btn-modo-selecao" onclick="toggleModoSelecao()">✓ Selecionar</button>
+            <button class="btn-selecionar" id="btn-modo-selecao" onclick="toggleModoSelecao()">☑ Selecionar</button>
             <button class="btn-lote" onclick="abrirModalLote()">⚡ Lote</button>
             <button class="btn-nova-unidade" onclick="abrirModalUnidade()">+ Nova</button>
           </div>
@@ -932,6 +958,18 @@
 
     // Carrega as unidades para o empreendimento selecionado
     await carregarUnidades(emp);
+  }
+
+  // ── MODAL EMPREENDIMENTO ───────────────────────────
+  function abrirModalEmpreendimento(emp = null) {
+    fecharSidebar(); // Fecha a sidebar em mobile
+    document.getElementById("emp-nome").value = emp ? emp.nome : "";
+    document.getElementById("emp-construtora").value = emp ? emp.construtora : "";
+    document.getElementById("emp-cidade").value = emp ? emp.cidade : "";
+    document.getElementById("emp-bairro").value = emp ? emp.bairro : "";
+    document.getElementById("emp-tipo").value = emp ? emp.tipo : "";
+    document.getElementById("modal-emp-titulo").textContent = emp ? "Editar Empreendimento" : "Novo Empreendimento";
+    abrirModal("modal-empreendimento");
   }
 
   async function salvarEmpreendimento() {
@@ -1047,44 +1085,9 @@
       <div class="secao">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
           <div style="display:flex; flex-direction:column;">
-            <div class="secao-titulo" style="margin-bottom:4px;">Empreendimento Ativo</div>
-            <h2 style="font-size:1.4rem; color:white; margin-top:0;">${emp.nome}</h2>
+            <h3 class="secao-titulo">${emp.nome} <span style="font-size:0.7em;color:#888;">(${emp.construtora} - ${emp.cidade})</span></h3>
+            <button class="btn-perigo" style="align-self:flex-start; margin-top:10px;" onclick="confirmarDeletarEmpreendimento()">🗑 Deletar Empreendimento</button>
           </div>
-          <button class="btn-perigo" onclick="confirmarDeletarEmpreendimento()">🗑 Deletar Empreendimento</button>
-        </div>
-        <hr class="divider-modal" style="margin-top:20px; margin-bottom:20px;">
-        <div class="form-grid cols-3">
-          <div class="form-grupo">
-            <label>Construtora</label>
-            <input type="text" value="${emp.construtora}" disabled>
-          </div>
-          <div class="form-grupo">
-            <label>Cidade</label>
-            <input type="text" value="${emp.cidade}" disabled>
-          </div>
-          <div class="form-grupo">
-            <label>Bairro</label>
-            <input type="text" value="${emp.bairro}" disabled>
-          </div>
-          <div class="form-grupo">
-            <label>Tipo</label>
-            <input type="text" value="${emp.tipo}" disabled>
-          </div>
-        </div>
-      </div>
-
-      <div class="secao">
-        <div class="secao-titulo">Resumo de Status</div>
-        <div class="form-grid cols-3">
-          <span style="font-size:0.9rem; color:#2ecc71; font-weight:600;">● ${unidades.filter(u => normalizar(u.status) === 'disponivel').length} disponíveis</span>
-          <span style="font-size:0.9rem; color:#FEAF00; font-weight:600;">● ${unidades.filter(u => normalizar(u.status) === 'reservado').length} reservados</span>
-          <span style="font-size:0.9rem; color:#e74c3c; font-weight:600;">● ${unidades.filter(u => normalizar(u.status) === 'vendido').length} vendidos</span>
-        </div>
-      </div>
-
-      <div class="secao">
-        <div class="unidades-header">
-          <div class="secao-titulo" style="margin-bottom:0">Unidades</div>
           <div class="unidades-acoes">
             <button class="btn-selecionar" id="btn-modo-selecao" onclick="toggleModoSelecao()">☑ Selecionar</button>
             <button class="btn-lote" onclick="abrirModalLote()">⚡ Lote</button>
