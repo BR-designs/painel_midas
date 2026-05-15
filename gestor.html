@@ -657,14 +657,6 @@
           <option value="vendido">Vendido</option>
         </select>
       </div>
-       <div class="form-grupo" id="und-bloco-grupo">
-          <label for="und-bloco">Bloco</label>
-          <input type="text" id="und-bloco" placeholder="Ex: A, B, C">
-        </div>
-        <div class="form-grupo" id="und-pavimento-grupo">
-          <label for="und-pavimento">Pavimento</label>
-          <input type="text" id="und-pavimento" placeholder="Ex: 1, 2, Térreo">
-        </div>
       <div class="form-grupo">
         <label>Valor (R$)</label>
         <input type="text" id="und-valor" placeholder="Ex: 350.000">
@@ -746,14 +738,6 @@
           <option value="vendido">Vendido</option>
         </select>
       </div>
-       <div class="form-grupo" id="lote-bloco-grupo">
-          <label for="lote-bloco">Bloco</label>
-          <input type="text" id="lote-bloco" placeholder="Ex: A, B, C">
-        </div>
-        <div class="form-grupo" id="lote-pavimento-grupo">
-          <label for="lote-pavimento">Pavimento</label>
-          <input type="text" id="lote-pavimento" placeholder="Ex: 1, 2, Térreo">
-        </div>
       <div class="form-grupo">
         <label>Valor (R$)</label>
         <input type="text" id="lote-valor" placeholder="Ex: 280.000">
@@ -826,9 +810,6 @@
   let unidadeEditando = null;
   let modoSelecao = false;
   let unidadesSelecionadas = new Set();
-  const TIPOS_COM_BLOCO_PAVIMENTO = ["predial"]; 
-  document.addEventListener("DOMContentLoaded", () => {
-});
 
   // ── SIDEBAR MOBILE ─────────────────────────────────
   function toggleSidebar() {
@@ -900,21 +881,16 @@
     carregarUnidades(emp);
   }
 
- function abrirModalEmpreendimento(emp = null) {
-  document.getElementById("modal-emp-titulo").textContent = emp ? "Editar Empreendimento" : "Novo Empreendimento";
-  document.getElementById("emp-nome").value = emp ? emp.nome : "";
-  document.getElementById("emp-construtora").value = emp ? emp.construtora : "";
-  document.getElementById("emp-cidade").value = emp ? emp.cidade : "";
-  document.getElementById("emp-bairro").value = emp ? emp.bairro : "";
-  document.getElementById("emp-tipo").value = emp ? emp.tipo : "residencial"; // Define um valor padrão ou o tipo existente
-  document.getElementById("emp-observacao").value = emp ? emp.observacao : "";
-  document.getElementById("emp-link-repositorio").value = emp ? emp.linkRepositorio : "";
-
-  // Mostra o botão de deletar apenas se estiver editando um empreendimento existente
-  document.getElementById("btn-deletar-emp").style.display = emp ? "block" : "none";
-
-  abrirModal("modal-empreendimento");
-}
+  function abrirModalEmpreendimento(emp = null) {
+    fecharSidebar();
+    document.getElementById("emp-nome").value = emp ? emp.nome : "";
+    document.getElementById("emp-construtora").value = emp ? emp.construtora : "";
+    document.getElementById("emp-cidade").value = emp ? emp.cidade : "";
+    document.getElementById("emp-bairro").value = emp ? emp.bairro : "";
+    document.getElementById("emp-tipo").value = emp ? emp.tipo : "";
+    document.getElementById("modal-emp-titulo").textContent = emp ? "Editar Empreendimento" : "Novo Empreendimento";
+    abrirModal("modal-empreendimento");
+  }
 
   async function salvarEmpreendimento() {
     const nome = document.getElementById("emp-nome").value.trim();
@@ -1176,8 +1152,6 @@
   function abrirModalUnidade(u = null) {
     unidadeEditando = u;
     document.getElementById("modal-und-titulo").textContent = u ? `Editar Unidade ${u.unidade}` : "Nova Unidade";
-    document.getElementById("und-bloco").value = u ? u.bloco : "";
-    document.getElementById("und-pavimento").value = u ? u.pavimento : "";
     document.getElementById("und-numero").value = u ? u.unidade : "";
     document.getElementById("und-numero").disabled = false; // sempre editável
     document.getElementById("und-status").value = u ? normalizar(u.status) : "disponivel";
@@ -1193,11 +1167,6 @@
 
     // Mostra botão de deletar apenas ao editar
     document.getElementById("btn-deletar-und").style.display = u ? "block" : "none";
-
-     // Lógica para mostrar/esconder Bloco/Pavimento baseada no tipo do empreendimento ativo
-  const mostrarBlocoPavimento = empAtivo && TIPOS_COM_BLOCO_PAVIMENTO.includes(normalizar(empAtivo.tipo));
-  document.getElementById("und-bloco-grupo").style.display = mostrarBlocoPavimento ? "" : "none";
-  document.getElementById("und-pavimento-grupo").style.display = mostrarBlocoPavimento ? "" : "none";
 
     abrirModal("modal-unidade");
   }
@@ -1336,8 +1305,7 @@
   // ── CADASTRO EM LOTE ───────────────────────────────
   function abrirModalLote() {
     ["lote-inicio","lote-fim","lote-prefixo","lote-valor","lote-metragem",
-     "lote-quartos","lote-banheiros","lote-suites","lote-rua","lote-numero-casa","lote-observacao",
-     "lote-bloco", "lote-pavimento", "lote-link-repositorio" // Novos campos
+     "lote-quartos","lote-banheiros","lote-suites","lote-rua","lote-numero-casa","lote-observacao"
     ].forEach(id => document.getElementById(id).value = "");
     document.getElementById("lote-status").value = "disponivel";
     document.getElementById("progresso-lote").classList.remove("visivel");
@@ -1345,11 +1313,6 @@
     document.getElementById("btn-salvar-lote").textContent = "Cadastrar Unidades";
     document.getElementById("btn-cancelar-lote").disabled = false;
     document.getElementById("btn-cancelar-lote").textContent = "Cancelar";
-
-     const mostrarBlocoPavimento = empAtivo && TIPOS_COM_BLOCO_PAVIMENTO.includes(normalizar(empAtivo.tipo));
-  document.getElementById("lote-bloco-grupo").style.display = mostrarBlocoPavimento ? "" : "none";
-  document.getElementById("lote-pavimento-grupo").style.display = mostrarBlocoPavimento ? "" : "none";
-
     abrirModal("modal-lote");
   }
 
