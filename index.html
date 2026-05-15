@@ -515,6 +515,16 @@
           <div class="observacao-box" id="md-obs"></div>
         </div>
       </div>
+      <!-- NOVO BLOCO AQUI PARA O LINK DO REPOSITÓRIO -->
+      <div id="md-link-repositorio-wrapper">
+        <hr class="modal-divider">
+        <div>
+          <div class="modal-secao-titulo">Repositório de Imagens</div>
+          <div class="observacao-box">
+            <a id="md-link-repositorio" href="#" target="_blank" rel="noopener noreferrer" style="color: #FEAF00; text-decoration: underline;">Abrir Repositório</a>
+          </div>
+        </div>
+      </div>
 
     </div>
     <button class="modal-fechar" onclick="fecharModal()">Fechar</button>
@@ -701,6 +711,17 @@
     } else {
       obsWrapper.style.display = "none";
     }
+     // --- NOVO CÓDIGO AQUI PARA O LINK DO REPOSITÓRIO ---
+    const linkRepositorioWrapper = document.getElementById("md-link-repositorio-wrapper");
+    const linkRepositorioEl = document.getElementById("md-link-repositorio");
+
+    if (u.linkRepositorio && String(u.linkRepositorio).trim() !== "") {
+      linkRepositorioEl.href = u.linkRepositorio;
+      linkRepositorioWrapper.style.display = ""; // Mostra a seção
+    } else {
+      linkRepositorioWrapper.style.display = "none"; // Esconde a seção
+    }
+    // --- FIM DO NOVO CÓDIGO ---
 
     document.getElementById("modal-detalhes").classList.add("ativo");
   }
