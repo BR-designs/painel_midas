@@ -758,11 +758,11 @@
       </div>
       <div class="form-grupo">
         <label>Valor (R$)</label>
-        <input type="text" id="lote-valor" placeholder="Ex: 280.000">
+        <input type="text" id="lote-valor" placeholder="Ex: 350.000">
       </div>
       <div class="form-grupo">
         <label>Metragem (m²)</label>
-        <input type="text" id="lote-metragem" placeholder="Ex: 60">
+        <input type="text" id="lote-metragem" placeholder="Ex: 72">
       </div>
       <div class="form-grupo">
         <label>Quartos</label>
@@ -774,29 +774,28 @@
       </div>
       <div class="form-grupo">
         <label>Suítes</label>
-        <input type="number" id="lote-suites" placeholder="Ex: 0" min="0">
+        <input type="number" id="lote-suites" placeholder="Ex: 1" min="0">
       </div>
       <div class="form-grupo">
         <label>Rua</label>
-        <input type="text" id="lote-rua" placeholder="Ex: Rua das Palmeiras">
+        <input type="text" id="lote-rua" placeholder="Ex: Rua das Flores">
       </div>
       <div class="form-grupo">
         <label>Nº da Casa inicial</label>
-        <input type="text" id="lote-numero-casa" placeholder="Ex: 100">
+        <input type="text" id="lote-numero-casa" placeholder="Ex: 42">
       </div>
     </div>
-
     <div class="form-grupo">
       <label>Observação</label>
-      <input type="text" id="lote-observacao" placeholder="Será a mesma para todas as unidades">
+      <input type="text" id="lote-observacao" placeholder="Ex: Vista para o lago...">
     </div>
     <div class="form-grupo">
       <label>Link Repositório</label>
-      <input type="url" id="lote-link-repositorio" placeholder="URL do repositório de imagens (para todas as unidades)">
+      <input type="url" id="lote-link-repositorio" placeholder="Ex: https://fotos.google.com/empreendimento-x">
     </div>
 
     <div class="progresso-lote" id="progresso-lote">
-      <div class="progresso-texto" id="progresso-texto">Cadastrando...</div>
+      <div class="progresso-texto" id="progresso-texto">Cadastrando 0 de 0...</div>
       <div class="barra-progresso-bg">
         <div class="barra-progresso-fill" id="barra-fill"></div>
       </div>
@@ -809,45 +808,33 @@
   </div>
 </div>
 
-<!-- MODAL CONFIRMAR DELEÇÃO -->
-<div class="modal-overlay" id="modal-confirmar">
-  <div class="modal modal-pequeno">
-    <div class="modal-titulo" id="confirmar-titulo">Confirmar exclusão</div>
-    <div class="aviso-perigo" id="confirmar-texto"></div>
+<!-- MODAL CONFIRMAR -->
+<div class="modal-overlay modal-pequeno" id="modal-confirmar">
+  <div class="modal">
+    <div class="modal-titulo" id="confirmar-titulo">Confirmar Ação</div>
+    <div id="confirmar-texto">Tem certeza?</div>
     <div class="modal-acoes">
       <button class="btn-cancelar" onclick="fecharModal('modal-confirmar')">Cancelar</button>
-      <button class="btn-perigo" id="btn-confirmar-acao">Confirmar exclusão</button>
+      <button class="btn-perigo" id="btn-confirmar-acao">Confirmar</button>
     </div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast">Mensagem de Toast</div>
 
 <script>
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz5mftum097bcnS0ddUjxVhis1O2XchUNzf3StGKeNoil5A8iT6TiOV1besENzC9yB9cg/exec";
-  const SENHA = "midas2025";
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz5mftum097bcnS0ddUjxVhis1O2XchUNzf3StGKeNoil5A8iT6TiOV1besENzC9yB9cg/exec"; // ATUALIZE COM A SUA URL DO APPS SCRIPT
+  const SENHA_GESTOR = "midas2025"; // ATUALIZE COM A SENHA DESEJADA
 
-  let empreendimentos = [];
   let empAtivo = null;
   let unidadeEditando = null;
   let modoSelecao = false;
-  let unidadesSelecionadas = new Set();
-
-  // ── SIDEBAR MOBILE ─────────────────────────────────
-  function toggleSidebar() {
-    document.getElementById("gestor-sidebar").classList.toggle("aberta");
-    document.getElementById("sidebar-overlay").classList.toggle("ativo");
-  }
-
-  function fecharSidebar() {
-    document.getElementById("gestor-sidebar").classList.remove("aberta");
-    document.getElementById("sidebar-overlay").classList.remove("ativo");
-  }
+  const unidadesSelecionadas = new Set();
 
   // ── LOGIN ──────────────────────────────────────────
   function fazerLogin() {
-    const senha = document.getElementById("input-senha").value;
-    if (senha === SENHA) {
+    const senhaDigitada = document.getElementById("input-senha").value;
+    if (senhaDigitada === SENHA_GESTOR) {
       document.getElementById("tela-login").style.display = "none";
       document.getElementById("tela-gestor").style.display = "block";
       carregarEmpreendimentos();
@@ -858,59 +845,62 @@
 
   // ── EMPREENDIMENTOS ────────────────────────────────
   async function carregarEmpreendimentos() {
-    try {
-      const resp = await fetch(`${SCRIPT_URL}?acao=listarEmpreendimentos`);
-      const dados = await resp.json();
-      empreendimentos = dados.empreendimentos || [];
-      renderListaEmpreendimentos();
+    document.getElementById("lista-empreendimentos").innerHTML = "";
+    document.getElementById("gestor-main").innerHTML = `
+      <div class="loading-main">
+        <div class="spinner"></div>
+        Carregando empreendimentos...
+      </div>
+    `;
 
-      if (empreendimentos.length > 0) {
-        selecionarEmpreendimento(empAtivo
-          ? empreendimentos.find(e => e.nome === empAtivo.nome) || empreendimentos[0]
-          : empreendimentos[0]);
+    try {
+      const resp = await fetch(SCRIPT_URL + "?acao=listarEmpreendimentos");
+      const dados = await resp.json();
+
+      if (dados.empreendimentos && dados.empreendimentos.length > 0) {
+        renderListaEmpreendimentos(dados.empreendimentos);
+        selecionarEmpreendimento(dados.empreendimentos[0]); // Seleciona o primeiro por padrão
       } else {
         document.getElementById("gestor-main").innerHTML = `
-          <div class="placeholder-vazio">
-            Nenhum empreendimento cadastrado ainda.<br>Clique em "+ Novo Empreendimento" para começar.
-          </div>`;
+          <div class="placeholder-vazio">Nenhum empreendimento cadastrado.</div>
+        `;
       }
     } catch (e) {
       mostrarToast("Erro ao carregar empreendimentos", true);
+      document.getElementById("gestor-main").innerHTML = `
+        <div class="placeholder-vazio" style="color:#e74c3c;">Erro ao carregar empreendimentos.</div>
+      `;
     }
   }
 
-  function renderListaEmpreendimentos() {
+  function renderListaEmpreendimentos(empreendimentos) {
     const lista = document.getElementById("lista-empreendimentos");
     lista.innerHTML = "";
-    if (empreendimentos.length === 0) {
-      lista.innerHTML = `<div style="color:#555;font-size:0.8rem;padding:8px 4px">Nenhum empreendimento cadastrado</div>`;
-      return;
-    }
     empreendimentos.forEach(emp => {
       const div = document.createElement("div");
-      div.className = "emp-item" + (empAtivo && empAtivo.nome === emp.nome ? " ativo" : "");
+      div.className = "emp-item";
       div.textContent = emp.nome;
-      div.onclick = () => { selecionarEmpreendimento(emp); fecharSidebar(); };
+      div.onclick = () => selecionarEmpreendimento(emp);
       lista.appendChild(div);
     });
   }
 
-  function selecionarEmpreendimento(emp) {
+  async function selecionarEmpreendimento(emp) {
+    if (empAtivo) {
+      document.querySelector(`.emp-item.ativo`)?.classList.remove("ativo");
+    }
     empAtivo = emp;
-    modoSelecao = false;
-    unidadesSelecionadas.clear();
-    renderListaEmpreendimentos();
-    carregarUnidades(emp);
+    document.querySelector(`.emp-item:nth-child(${emp.empreendimentos.indexOf(emp) + 1})`)?.classList.add("ativo"); // Corrigido para selecionar o item correto
+    await carregarUnidades(emp);
   }
 
   function abrirModalEmpreendimento(emp = null) {
-    fecharSidebar();
+    document.getElementById("modal-emp-titulo").textContent = emp ? "Editar Empreendimento" : "Novo Empreendimento";
     document.getElementById("emp-nome").value = emp ? emp.nome : "";
     document.getElementById("emp-construtora").value = emp ? emp.construtora : "";
     document.getElementById("emp-cidade").value = emp ? emp.cidade : "";
     document.getElementById("emp-bairro").value = emp ? emp.bairro : "";
     document.getElementById("emp-tipo").value = emp ? emp.tipo : "";
-    document.getElementById("modal-emp-titulo").textContent = emp ? "Editar Empreendimento" : "Novo Empreendimento";
     abrirModal("modal-empreendimento");
   }
 
@@ -919,7 +909,7 @@
     const construtora = document.getElementById("emp-construtora").value.trim();
     const cidade = document.getElementById("emp-cidade").value.trim();
     const bairro = document.getElementById("emp-bairro").value.trim();
-    const tipo = document.getElementById("emp-tipo").value;
+    const tipo = document.getElementById("emp-tipo").value.trim();
 
     if (!nome || !construtora || !cidade || !bairro || !tipo) {
       mostrarToast("Preencha todos os campos obrigatórios", true);
@@ -933,16 +923,17 @@
     try {
       const resp = await fetch(SCRIPT_URL, {
         method: "POST",
-        body: JSON.stringify({ acao: "cadastrarEmpreendimento", nome, construtora, cidade, bairro, tipo })
+        body: JSON.stringify({
+          acao: "cadastrarEmpreendimento",
+          nome, construtora, cidade, bairro, tipo
+        })
       });
       const dados = await resp.json();
 
       if (dados.sucesso) {
         fecharModal("modal-empreendimento");
         mostrarToast("Empreendimento salvo!");
-        await carregarEmpreendimentos();
-        const novo = empreendimentos.find(e => e.nome === nome);
-        if (novo) selecionarEmpreendimento(novo);
+        carregarEmpreendimentos();
       } else {
         mostrarToast("Erro: " + dados.erro, true);
       }
@@ -954,12 +945,11 @@
     btn.textContent = "Salvar Empreendimento";
   }
 
-  // ── DELETAR EMPREENDIMENTO ─────────────────────────
   function confirmarDeletarEmpreendimento() {
+    if (!empAtivo) return;
     document.getElementById("confirmar-titulo").textContent = "Deletar Empreendimento";
     document.getElementById("confirmar-texto").innerHTML =
-      `Tem certeza que deseja deletar o empreendimento <strong>${empAtivo.nome}</strong>?<br><br>
-       Isso irá remover a aba da planilha e <strong>todas as unidades</strong> cadastradas. Esta ação não pode ser desfeita.`;
+      `Tem certeza que deseja deletar o empreendimento <strong>${empAtivo.nome}</strong>?<br><br>Todas as unidades e a aba da planilha serão removidas. Esta ação não pode ser desfeita.`;
     document.getElementById("btn-confirmar-acao").onclick = executarDeletarEmpreendimento;
     abrirModal("modal-confirmar");
   }
@@ -972,7 +962,10 @@
     try {
       const resp = await fetch(SCRIPT_URL, {
         method: "POST",
-        body: JSON.stringify({ acao: "deletarEmpreendimento", nome: empAtivo.nome })
+        body: JSON.stringify({
+          acao: "deletarEmpreendimento",
+          nome: empAtivo.nome
+        })
       });
       const dados = await resp.json();
 
@@ -980,7 +973,7 @@
         fecharModal("modal-confirmar");
         mostrarToast("Empreendimento deletado!");
         empAtivo = null;
-        await carregarEmpreendimentos();
+        carregarEmpreendimentos();
       } else {
         mostrarToast("Erro: " + dados.erro, true);
       }
@@ -994,41 +987,68 @@
 
   // ── UNIDADES ───────────────────────────────────────
   async function carregarUnidades(emp) {
-    const main = document.getElementById("gestor-main");
-    main.innerHTML = `<div class="loading-main"><div class="spinner"></div>Carregando unidades...</div>`;
+    empAtivo.unidades = []; // Inicializa unidades como array vazio para evitar erro
+    document.getElementById("gestor-main").innerHTML = `
+      <div class="loading-main">
+        <div class="spinner"></div>
+        Carregando unidades...
+      </div>
+    `;
 
     try {
-      const resp = await fetch(`${SCRIPT_URL}?acao=listarUnidades&gid=${emp.gid}`);
+      const resp = await fetch(SCRIPT_URL + "?acao=listarUnidades&gid=" + emp.gid);
       const dados = await resp.json();
-      renderPainelEmpreendimento(emp, dados.unidades || []);
+
+      if (dados.unidades) {
+        empAtivo.unidades = dados.unidades;
+        renderPainelEmpreendimento(emp, dados.unidades);
+      } else {
+        renderPainelEmpreendimento(emp, []); // Renderiza com array vazio se não houver unidades
+      }
     } catch (e) {
-      main.innerHTML = `<div class="placeholder-vazio">Erro ao carregar unidades.</div>`;
+      mostrarToast("Erro ao carregar unidades", true);
+      renderPainelEmpreendimento(emp, []); // Renderiza mesmo com erro para mostrar o painel
     }
   }
 
   function renderPainelEmpreendimento(emp, unidades) {
     const main = document.getElementById("gestor-main");
-
-    const disp  = unidades.filter(u => normalizar(u.status) === "disponivel").length;
-    const reserv = unidades.filter(u => normalizar(u.status) === "reservado").length;
-    const vend  = unidades.filter(u => normalizar(u.status) === "vendido").length;
-
     main.innerHTML = `
       <div class="secao">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
-          <div class="secao-titulo" style="margin-bottom:0">${emp.nome}</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn-cancelar" style="font-size:0.78rem" onclick="abrirModalEmpreendimento(empAtivo)">✏️ Editar</button>
-            <button class="btn-perigo" style="font-size:0.78rem;padding:8px 14px" onclick="confirmarDeletarEmpreendimento()">🗑 Deletar Empreendimento</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div style="display:flex; flex-direction:column;">
+            <div class="secao-titulo" style="margin-bottom:4px;">Empreendimento Ativo</div>
+            <h2 style="font-size:1.4rem; color:white; margin-top:0;">${emp.nome}</h2>
+          </div>
+          <button class="btn-perigo" onclick="confirmarDeletarEmpreendimento()">🗑 Deletar Empreendimento</button>
+        </div>
+        <hr class="divider-modal" style="margin-top:20px; margin-bottom:20px;">
+        <div class="form-grid cols-3">
+          <div class="form-grupo">
+            <label>Construtora</label>
+            <input type="text" value="${emp.construtora}" disabled>
+          </div>
+          <div class="form-grupo">
+            <label>Cidade</label>
+            <input type="text" value="${emp.cidade}" disabled>
+          </div>
+          <div class="form-grupo">
+            <label>Bairro</label>
+            <input type="text" value="${emp.bairro}" disabled>
+          </div>
+          <div class="form-grupo">
+            <label>Tipo</label>
+            <input type="text" value="${emp.tipo}" disabled>
           </div>
         </div>
-        <div style="display:flex;gap:24px;font-size:0.82rem;color:#aaa;flex-wrap:wrap">
-          <span>📍 ${emp.bairro}, ${emp.cidade}</span>
-          <span>🏗️ ${emp.construtora}</span>
-          <span>🏠 ${emp.tipo}</span>
-          <span style="color:#2ecc71">● ${disp} disponíveis</span>
-          <span style="color:#FEAF00">● ${reserv} reservados</span>
-          <span style="color:#e74c3c">● ${vend} vendidos</span>
+      </div>
+
+      <div class="secao">
+        <div class="secao-titulo">Resumo de Status</div>
+        <div class="form-grid cols-3">
+          <span style="font-size:0.9rem; color:#2ecc71; font-weight:600;">● ${unidades.filter(u => normalizar(u.status) === 'disponivel').length} disponíveis</span>
+          <span style="font-size:0.9rem; color:#FEAF00; font-weight:600;">● ${unidades.filter(u => normalizar(u.status) === 'reservado').length} reservados</span>
+          <span style="font-size:0.9rem; color:#e74c3c; font-weight:600;">● ${unidades.filter(u => normalizar(u.status) === 'vendido').length} vendidos</span>
         </div>
       </div>
 
@@ -1263,7 +1283,8 @@
 
     // Esconde Bloco/Pavimento para empreendimentos antigos (se não tiver dados)
     // Verifica se *alguma* unidade do empreendimento ativo tem bloco ou pavimento preenchido
-    const hasBlocoPavimento = empAtivo.unidades.some(unit => unit.bloco || unit.pavimento);
+    // CORREÇÃO AQUI: Garante que empAtivo.unidades é um array antes de chamar .some()
+    const hasBlocoPavimento = (empAtivo && empAtivo.unidades || []).some(unit => unit.bloco || unit.pavimento);
     document.getElementById("und-bloco-grupo").style.display = hasBlocoPavimento ? "" : "none";
     document.getElementById("und-pavimento-grupo").style.display = hasBlocoPavimento ? "" : "none";
 
@@ -1411,7 +1432,8 @@
     document.getElementById("btn-deletar-und").style.display = "none";
 
     // Esconde Bloco/Pavimento para empreendimentos antigos (se não tiver dados)
-    const hasBlocoPavimento = empAtivo.unidades.some(unit => unit.bloco || unit.pavimento);
+    // CORREÇÃO AQUI: Garante que empAtivo.unidades é um array antes de chamar .some()
+    const hasBlocoPavimento = (empAtivo && empAtivo.unidades || []).some(unit => unit.bloco || unit.pavimento);
     document.getElementById("und-bloco-grupo").style.display = hasBlocoPavimento ? "" : "none";
     document.getElementById("und-pavimento-grupo").style.display = hasBlocoPavimento ? "" : "none";
 
@@ -1433,7 +1455,8 @@
     document.getElementById("btn-cancelar-lote").textContent = "Cancelar";
 
     // Esconde Bloco/Pavimento para empreendimentos antigos (se não tiver dados)
-    const hasBlocoPavimento = empAtivo.unidades.some(unit => unit.bloco || unit.pavimento);
+    // CORREÇÃO AQUI: Garante que empAtivo.unidades é um array antes de chamar .some()
+    const hasBlocoPavimento = (empAtivo && empAtivo.unidades || []).some(unit => unit.bloco || unit.pavimento);
     document.getElementById("lote-bloco-grupo").style.display = hasBlocoPavimento ? "" : "none";
     document.getElementById("lote-pavimento-grupo").style.display = hasBlocoPavimento ? "" : "none";
 
