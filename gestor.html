@@ -826,6 +826,15 @@
   let unidadeEditando = null;
   let modoSelecao = false;
   let unidadesSelecionadas = new Set();
+  const TIPOS_COM_BLOCO_PAVIMENTO = ["predial"]; 
+  document.addEventListener("DOMContentLoaded", () => {
+  // Tenta fazer login automaticamente se a senha estiver salva
+  const senhaSalva = localStorage.getItem("midasGestorSenha");
+  if (senhaSalva) {
+    document.getElementById("input-senha").value = senhaSalva;
+    fazerLogin();
+  }
+});
 
   // ── SIDEBAR MOBILE ─────────────────────────────────
   function toggleSidebar() {
@@ -1168,6 +1177,8 @@
   function abrirModalUnidade(u = null) {
     unidadeEditando = u;
     document.getElementById("modal-und-titulo").textContent = u ? `Editar Unidade ${u.unidade}` : "Nova Unidade";
+    document.getElementById("und-bloco").value = u ? u.bloco : "";
+    document.getElementById("und-pavimento").value = u ? u.pavimento : "";
     document.getElementById("und-numero").value = u ? u.unidade : "";
     document.getElementById("und-numero").disabled = false; // sempre editável
     document.getElementById("und-status").value = u ? normalizar(u.status) : "disponivel";
@@ -1183,6 +1194,11 @@
 
     // Mostra botão de deletar apenas ao editar
     document.getElementById("btn-deletar-und").style.display = u ? "block" : "none";
+
+     // Lógica para mostrar/esconder Bloco/Pavimento baseada no tipo do empreendimento ativo
+  const mostrarBlocoPavimento = empAtivo && TIPOS_COM_BLOCO_PAVIMENTO.includes(normalizar(empAtivo.tipo));
+  document.getElementById("und-bloco-grupo").style.display = mostrarBlocoPavimento ? "" : "none";
+  document.getElementById("und-pavimento-grupo").style.display = mostrarBlocoPavimento ? "" : "none";
 
     abrirModal("modal-unidade");
   }
@@ -1322,6 +1338,7 @@
   function abrirModalLote() {
     ["lote-inicio","lote-fim","lote-prefixo","lote-valor","lote-metragem",
      "lote-quartos","lote-banheiros","lote-suites","lote-rua","lote-numero-casa","lote-observacao"
+     "lote-bloco", "lote-pavimento", "lote-link-repositorio" // Novos campos
     ].forEach(id => document.getElementById(id).value = "");
     document.getElementById("lote-status").value = "disponivel";
     document.getElementById("progresso-lote").classList.remove("visivel");
@@ -1329,6 +1346,11 @@
     document.getElementById("btn-salvar-lote").textContent = "Cadastrar Unidades";
     document.getElementById("btn-cancelar-lote").disabled = false;
     document.getElementById("btn-cancelar-lote").textContent = "Cancelar";
+
+     const mostrarBlocoPavimento = empAtivo && TIPOS_COM_BLOCO_PAVIMENTO.includes(normalizar(empAtivo.tipo));
+  document.getElementById("lote-bloco-grupo").style.display = mostrarBlocoPavimento ? "" : "none";
+  document.getElementById("lote-pavimento-grupo").style.display = mostrarBlocoPavimento ? "" : "none";
+
     abrirModal("modal-lote");
   }
 
