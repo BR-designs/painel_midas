@@ -885,23 +885,53 @@
     });
   }
 
-  async function selecionarEmpreendimento(emp) {
-    if (empAtivo) {
-      document.querySelector(`.emp-item.ativo`)?.classList.remove("ativo");
-    }
+    async function selecionarEmpreendimento(emp) {
     empAtivo = emp;
-    document.querySelector(`.emp-item:nth-child(${emp.empreendimentos.indexOf(emp) + 1})`)?.classList.add("ativo"); // Corrigido para selecionar o item correto
-    await carregarUnidades(emp);
-  }
 
-  function abrirModalEmpreendimento(emp = null) {
-    document.getElementById("modal-emp-titulo").textContent = emp ? "Editar Empreendimento" : "Novo Empreendimento";
-    document.getElementById("emp-nome").value = emp ? emp.nome : "";
-    document.getElementById("emp-construtora").value = emp ? emp.construtora : "";
-    document.getElementById("emp-cidade").value = emp ? emp.cidade : "";
-    document.getElementById("emp-bairro").value = emp ? emp.bairro : "";
-    document.getElementById("emp-tipo").value = emp ? emp.tipo : "";
-    abrirModal("modal-empreendimento");
+    // Atualiza o estado visual da lista de empreendimentos
+    document.querySelectorAll(".emp-item").forEach(item => {
+      // --- ADICIONE ESTAS LINHAS DO CONSOLE.LOG AQUI ---
+      console.log("Debug selecionarEmpreendimento:", {
+        itemElement: item,
+        itemDatasetGid: item.dataset.gid,
+        empObject: emp,
+        empGid: emp.gid,
+        stringEmpGid: String(emp.gid)
+      });
+      // --- ESTA É A LINHA QUE ESTAVA CAUSANDO O ERRO E DEVE SER MANTIDA ---
+      item.classList.toggle("ativo", item.dataset.gid === String(emp.gid));
+    });
+
+    // Remova a linha que você adicionou fora do forEach, como esta:
+    // document.querySelector(`.emp-item:nth-child(${emp.empreendimentos.indexOf(emp) + 1})`)?.classList.add("ativo");
+    // Ela não é necessária com o forEach acima.
+
+    // Renderiza o painel principal do empreendimento
+    document.getElementById("gestor-main").innerHTML = `
+      <div class="secao">
+        <div class="unidades-header">
+          <h3 class="secao-titulo">${emp.nome} <span style="font-size:0.7em;color:#888;">(${emp.construtora} - ${emp.cidade})</span></h3>
+          <div class="unidades-acoes">
+            <button class="btn-selecionar" id="btn-modo-selecao" onclick="toggleModoSelecao()">✓ Selecionar</button>
+            <button class="btn-lote" onclick="abrirModalLote()">⚡ Lote</button>
+            <button class="btn-nova-unidade" onclick="abrirModalUnidade()">+ Nova</button>
+          </div>
+        </div>
+
+        <div class="barra-selecao" id="barra-selecao">
+          <span class="barra-selecao-info" id="info-selecao">0 selecionadas</span>
+          <div class="barra-selecao-acoes">
+            <button class="btn-cancelar" onclick="toggleModoSelecao()">Cancelar</button>
+            <button class="btn-perigo" onclick="confirmarDeletarSelecionadas()">🗑 Deletar selecionadas</button>
+          </div>
+        </div>
+
+        <div class="unidades-grade" id="grade-unidades"></div>
+      </div>
+    `;
+
+    // Carrega as unidades para o empreendimento selecionado
+    await carregarUnidades(emp);
   }
 
   async function salvarEmpreendimento() {
