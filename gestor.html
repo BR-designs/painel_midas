@@ -828,12 +828,6 @@
   let unidadesSelecionadas = new Set();
   const TIPOS_COM_BLOCO_PAVIMENTO = ["predial"]; 
   document.addEventListener("DOMContentLoaded", () => {
-  // Tenta fazer login automaticamente se a senha estiver salva
-  const senhaSalva = localStorage.getItem("midasGestorSenha");
-  if (senhaSalva) {
-    document.getElementById("input-senha").value = senhaSalva;
-    fazerLogin();
-  }
 });
 
   // ── SIDEBAR MOBILE ─────────────────────────────────
