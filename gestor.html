@@ -900,16 +900,21 @@
     carregarUnidades(emp);
   }
 
-  function abrirModalEmpreendimento(emp = null) {
-    fecharSidebar();
-    document.getElementById("emp-nome").value = emp ? emp.nome : "";
-    document.getElementById("emp-construtora").value = emp ? emp.construtora : "";
-    document.getElementById("emp-cidade").value = emp ? emp.cidade : "";
-    document.getElementById("emp-bairro").value = emp ? emp.bairro : "";
-    document.getElementById("emp-tipo").value = emp ? emp.tipo : "";
-    document.getElementById("modal-emp-titulo").textContent = emp ? "Editar Empreendimento" : "Novo Empreendimento";
-    abrirModal("modal-empreendimento");
-  }
+ function abrirModalEmpreendimento(emp = null) {
+  document.getElementById("modal-emp-titulo").textContent = emp ? "Editar Empreendimento" : "Novo Empreendimento";
+  document.getElementById("emp-nome").value = emp ? emp.nome : "";
+  document.getElementById("emp-construtora").value = emp ? emp.construtora : "";
+  document.getElementById("emp-cidade").value = emp ? emp.cidade : "";
+  document.getElementById("emp-bairro").value = emp ? emp.bairro : "";
+  document.getElementById("emp-tipo").value = emp ? emp.tipo : "residencial"; // Define um valor padrão ou o tipo existente
+  document.getElementById("emp-observacao").value = emp ? emp.observacao : "";
+  document.getElementById("emp-link-repositorio").value = emp ? emp.linkRepositorio : "";
+
+  // Mostra o botão de deletar apenas se estiver editando um empreendimento existente
+  document.getElementById("btn-deletar-emp").style.display = emp ? "block" : "none";
+
+  abrirModal("modal-empreendimento");
+}
 
   async function salvarEmpreendimento() {
     const nome = document.getElementById("emp-nome").value.trim();
