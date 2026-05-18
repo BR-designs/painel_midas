@@ -630,8 +630,8 @@
           <option value="Residencial">Residencial</option>
           <option value="Comercial">Comercial</option>
           <option value="Misto">Misto</option>
-           <option value="residencial/predial">Residencial/Predial</option>
-           <option value="condominio/predial">Condomínio/Predial</option>
+          <option value="Residencial/Predial">Residencial/Predial</option>
+           <option value="Condomínio/Predial">Condomínio/Predial</option>
         </select>
       </div>
     </div>
@@ -1243,30 +1243,32 @@
     return;
   }
     // NOVO: Coletar Bloco e Pavimento
-    const bloco = document.getElementById("und-bloco").value.trim();
-    const pavimento = document.getElementById("und-pavimento").value.trim();
     const numero = document.getElementById("und-numero").value.trim();
     const status = document.getElementById("und-status").value;
 
-    // NOVO: Validação para Bloco e Pavimento
-  if (empAtivo.tipo === "Residencial/Predial" || empAtivo.tipo === "Condomínio/Predial") {
-    if (!bloco) {
-      mostrarToast("Informe o Bloco da unidade", true);
-      return;
+// Inicializa bloco e pavimento como strings vazias por padrão
+    let bloco = "";
+    let pavimento = "";
+
+    // Coleta os valores dos campos Bloco e Pavimento APENAS se eles estiverem visíveis
+    // e o tipo de empreendimento for o correto.
+    // A validação de obrigatoriedade também é feita aqui.
+    if (empAtivo.tipo === "Residencial/Predial" || empAtivo.tipo === "Condomínio/Predial") {
+      bloco = document.getElementById("und-bloco").value.trim();
+      pavimento = document.getElementById("und-pavimento").value.trim();
+
+      if (!bloco) {
+        mostrarToast("Informe o Bloco da unidade", true);
+        return;
+      }
+      if (!pavimento) {
+        mostrarToast("Informe o Pavimento da unidade", true);
+        return;
+      }
     }
-    if (!pavimento) {
-      mostrarToast("Informe o Pavimento da unidade", true);
-      return;
-    }
-  }
 
     if (!numero) {
       mostrarToast("Informe o número da unidade", true);
-      return;
-    }
-
-    if (!empAtivo) {
-      mostrarToast("Selecione um empreendimento", true);
       return;
     }
 
@@ -1300,6 +1302,8 @@
       numero: document.getElementById("und-numero-casa").value.trim(),
       observacao: document.getElementById("und-observacao").value.trim(),
       linkRepositorio: document.getElementById("und-link-repositorio").value.trim() // NOVO CAMPO
+      bloco: bloco,
+      pavimento: pavimento
     };
 
     try {
