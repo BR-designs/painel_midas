@@ -647,6 +647,14 @@
   <div class="modal">
     <div class="modal-titulo" id="modal-und-titulo">Nova Unidade</div>
     <div class="form-grid cols-3">
+      <div class="form-grupo" id="grupo-und-bloco" style="display: none;">
+        <label>Bloco</label>
+        <input type="text" id="und-bloco" placeholder="Ex: Bloco A, Torre 1">
+      </div>
+      <div class="form-grupo" id="grupo-und-pavimento" style="display: none;">
+        <label>Pavimento</label>
+        <input type="text" id="und-pavimento" placeholder="Ex: 1º Andar, Térreo">
+      </div>
       <div class="form-grupo">
         <label>Número/Nome da Unidade *</label>
         <input type="text" id="und-numero" placeholder="Ex: Casa 1, 101, Lote A">
@@ -1166,6 +1174,21 @@
     document.getElementById("und-numero-casa").value = u ? u.numero : "";
     document.getElementById("und-observacao").value = u ? u.observacao : "";
     document.getElementById("und-link-repositorio").value = u ? u.linkRepositorio : ""; // NOVO CAMPO
+    // NOVO: Preencher Bloco e Pavimento
+  document.getElementById("und-bloco").value = u ? u.bloco : "";
+  document.getElementById("und-pavimento").value = u ? u.pavimento : "";
+
+  // NOVO: Lógica para mostrar/esconder Bloco e Pavimento
+  const grupoBloco = document.getElementById("grupo-und-bloco");
+  const grupoPavimento = document.getElementById("grupo-und-pavimento");
+
+  if (empAtivo && (empAtivo.tipo === "Residencial/Predial" || empAtivo.tipo === "Condomínio/Predial")) {
+    grupoBloco.style.display = "flex";
+    grupoPavimento.style.display = "flex";
+  } else {
+    grupoBloco.style.display = "none";
+    grupoPavimento.style.display = "none";
+  }
 
     // Mostra botão de deletar apenas ao editar
     document.getElementById("btn-deletar-und").style.display = u ? "block" : "none";
@@ -1215,8 +1238,27 @@
   }
 
   async function salvarUnidade() {
+    if (!empAtivo) {
+    mostrarToast("Selecione um empreendimento", true);
+    return;
+  }
+    // NOVO: Coletar Bloco e Pavimento
+    const bloco = document.getElementById("und-bloco").value.trim();
+    const pavimento = document.getElementById("und-pavimento").value.trim();
     const numero = document.getElementById("und-numero").value.trim();
     const status = document.getElementById("und-status").value;
+
+    // NOVO: Validação para Bloco e Pavimento
+  if (empAtivo.tipo === "Residencial/Predial" || empAtivo.tipo === "Condomínio/Predial") {
+    if (!bloco) {
+      mostrarToast("Informe o Bloco da unidade", true);
+      return;
+    }
+    if (!pavimento) {
+      mostrarToast("Informe o Pavimento da unidade", true);
+      return;
+    }
+  }
 
     if (!numero) {
       mostrarToast("Informe o número da unidade", true);
