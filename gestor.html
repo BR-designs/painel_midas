@@ -777,6 +777,16 @@
         <input type="text" id="lote-numero-casa" placeholder="Ex: 100">
       </div>
     </div>
+     <!-- NOVOS CAMPOS AQUI -->
+      <div class="form-grupo" id="grupo-lote-bloco" style="display: none;">
+        <label>Bloco</label>
+        <input type="text" id="lote-bloco" placeholder="Ex: Bloco A, Torre 1">
+      </div>
+      <div class="form-grupo" id="grupo-lote-pavimento" style="display: none;">
+        <label>Pavimento</label>
+        <input type="text" id="lote-pavimento" placeholder="Ex: 1º Andar, Térreo">
+      </div>
+      <!-- FIM DOS NOVOS CAMPOS -->
 
     <div class="form-grupo">
       <label>Observação</label>
@@ -1353,7 +1363,7 @@
   // ── CADASTRO EM LOTE ───────────────────────────────
   function abrirModalLote() {
     ["lote-inicio","lote-fim","lote-prefixo","lote-valor","lote-metragem",
-     "lote-quartos","lote-banheiros","lote-suites","lote-rua","lote-numero-casa","lote-observacao"
+     "lote-quartos","lote-banheiros","lote-suites","lote-rua","lote-numero-casa","lote-observacao","lote-bloco","lote-pavimento" // ADICIONADO: Novos campos para limpar
     ].forEach(id => document.getElementById(id).value = "");
     document.getElementById("lote-status").value = "disponivel";
     document.getElementById("progresso-lote").classList.remove("visivel");
@@ -1361,6 +1371,18 @@
     document.getElementById("btn-salvar-lote").textContent = "Cadastrar Unidades";
     document.getElementById("btn-cancelar-lote").disabled = false;
     document.getElementById("btn-cancelar-lote").textContent = "Cancelar";
+ // NOVO: Lógica para mostrar/esconder Bloco e Pavimento no modal de lote
+    const grupoLoteBloco = document.getElementById("grupo-lote-bloco");
+    const grupoLotePavimento = document.getElementById("grupo-lote-pavimento");
+
+    if (empAtivo && (empAtivo.tipo === "Residencial/Predial" || empAtivo.tipo === "Condomínio/Predial")) {
+      grupoLoteBloco.style.display = "flex";
+      grupoLotePavimento.style.display = "flex";
+    } else {
+      grupoLoteBloco.style.display = "none";
+      grupoLotePavimento.style.display = "none";
+    }
+    
     abrirModal("modal-lote");
   }
 
@@ -1388,6 +1410,25 @@
     const numeroCasaInicio = document.getElementById("lote-numero-casa").value.trim();
     const observacao = document.getElementById("lote-observacao").value.trim();
 
+     // NOVO: Coletar Bloco e Pavimento para o cadastro em lote
+    let blocoLote = "";
+    let pavimentoLote = "";
+
+    if (empAtivo.tipo === "Residencial/Predial" || empAtivo.tipo === "Condomínio/Predial") {
+      blocoLote = document.getElementById("lote-bloco").value.trim();
+      pavimentoLote = document.getElementById("lote-pavimento").value.trim();
+
+      // NOVO: Validação de obrigatoriedade para Bloco e Pavimento no lote
+      if (!blocoLote) {
+        mostrarToast("Informe o Bloco para o cadastro em lote", true);
+        return;
+      }
+      if (!pavimentoLote) {
+        mostrarToast("Informe o Pavimento para o cadastro em lote", true);
+        return;
+      }
+    }
+
     const total = fim - inicio + 1;
     let concluidos = 0;
 
@@ -1414,7 +1455,9 @@
             empreendimento: empAtivo.nome,
             unidade: nomeUnidade,
             status, valor, metragem, quartos, banheiros, suites, rua,
-            numero: numeroCasa, observacao
+            numero: numeroCasa, observacao,
+            bloco: blocoLote, // ADICIONADO: Bloco no payload
+            pavimento: pavimentoLote // ADICIONADO: Pavimento no payload
           })
         });
       } catch(e) {}
