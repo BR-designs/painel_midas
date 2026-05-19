@@ -529,6 +529,43 @@
       text-align: center;
       padding: 40px;
     }
+    /* Estilos para a nova estrutura hierárquica */
+.bloco-container {
+  background: #1a1a1a; /* Fundo mais escuro para o bloco */
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px; /* Espaço entre blocos */
+}
+
+.bloco-container h3 {
+  font-size: 1rem;
+  color: #FEAF00;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #2a2a2a;
+  padding-bottom: 10px;
+}
+
+.pavimento-container {
+  background: #111; /* Fundo um pouco mais claro para o pavimento */
+  border: 1px solid #222;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 15px; /* Espaço entre pavimentos */
+}
+
+.pavimento-container h4 {
+  font-size: 0.9rem;
+  color: #ccc;
+  margin-bottom: 10px;
+}
+
+.unidades-grade-interno {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
+  gap: 8px;
+  margin-top: 10px; /* Espaço entre o título do pavimento e as unidades */
+}
 
     @media (max-width: 768px) {
       header { padding: 14px 16px; }
@@ -992,95 +1029,246 @@
 
   // ── UNIDADES ───────────────────────────────────────
   async function carregarUnidades(emp) {
-    const main = document.getElementById("gestor-main");
-    main.innerHTML = `<div class="loading-main"><div class="spinner"></div>Carregando unidades...</div>`;
+    if (!emp) {
+    document.getElementById("gestor-main").innerHTML = `
+      <div class="placeholder-vazio">
+        Selecione um empreendimento na barra lateral para gerenciar suas unidades.
+      </div>`;
+    return;
+  }
+    // Atualiza o empreendimento ativo globalmente
+  empAtivo = emp;
+document.getElementById("gestor-main").innerHTML = `
+    <div class="loading-main">
+      <div class="spinner"></div>
+      <span>Carregando unidades de ${emp.nome}...</span>
+    </div>`;
+     try {
+    // Requisição ao Apps Script sem o parâmetro tipoEmpreendimento
+    const resp = await fetch(`${SCRIPT_URL}?acao=listarUnidades&gid=${emp.gid}`);
+    const dados = await resp.json();
 
-    try {
-      const resp = await fetch(`${SCRIPT_URL}?acao=listarUnidades&gid=${emp.gid}`);
-      const dados = await resp.json();
-      renderPainelEmpreendimento(emp, dados.unidades || []);
-    } catch (e) {
-      main.innerHTML = `<div class="placeholder-vazio">Erro ao carregar unidades.</div>`;
+    if (dados.sucesso) {
+      // Renderiza o painel do empreendimento com as informações gerais
+      renderPainelEmpreendimento(emp, dados.unidades || []); // Passa as unidades para renderPainelEmpreendimento
+      // NOVO: Lógica para agrupar e renderizar no frontend
+      if (emp.tipo === "Residencial/Predial" || emp.tipo === "Condomínio/Predial") {
+        const unidadesAgrupadas = agruparUnidadesPorBlocoPavimento(dados.unidades || []);
+        renderUnidadesHierarquicas(unidadesAgrupadas);
+      } else {
+        renderUnidadesSimples(dados.unidades || []);
+      }
+    } else {
+      mostrarToast("Erro ao carregar unidades: " + dados.erro, true);
+      document.getElementById("gestor-main").innerHTML = `
+        <div class="placeholder-vazio">
+          Erro ao carregar unidades: ${dados.erro}
+        </div>`;
     }
+  } catch (e) {
+    mostrarToast("Erro de conexão ao carregar unidades", true);
+    document.getElementById("gestor-main").innerHTML = `
+      <div class="placeholder-vazio">
+        Erro de conexão ao carregar unidades.
+      </div>`;
+  }
+}
+
+function renderPainelEmpreendimento(emp, unidades) {
+  const main = document.getElementById("gestor-main");
+
+  const disp  = unidades.filter(u => normalizar(u.status) === "disponivel").length;
+  const reserv = unidades.filter(u => normalizar(u.status) === "reservado").length;
+  const vend  = unidades.filter(u => normalizar(u.status) === "vendido").length;
+
+  main.innerHTML = `
+    <div class="secao">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+        <div class="secao-titulo" style="margin-bottom:0" id="secao-empreendimento-titulo">${emp.nome}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-cancelar" style="font-size:0.78rem" onclick="abrirModalEmpreendimento(empAtivo)">✏️ Editar</button>
+          <button class="btn-perigo" style="font-size:0.78rem;padding:8px 14px" onclick="confirmarDeletarEmpreendimento()">🗑 Deletar Empreendimento</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:24px;font-size:0.82rem;color:#aaa;flex-wrap:wrap">
+        <span>📍 ${emp.bairro}, ${emp.cidade}</span>
+        <span>🏗️ ${emp.construtora}</span>
+        <span>🏠 ${emp.tipo}</span>
+        <span style="color:#2ecc71">● ${disp} disponíveis</span>
+        <span style="color:#FEAF00">● ${reserv} reservados</span>
+        <span style="color:#e74c3c">● ${vend} vendidos</span>
+      </div>
+    </div>
+
+    <div class="secao" id="secao-unidades">
+      <div class="unidades-header">
+        <div class="secao-titulo" style="margin-bottom:0">Unidades</div>
+        <div class="unidades-acoes">
+          <button class="btn-selecionar" id="btn-modo-selecao" onclick="toggleModoSelecao()">☑ Selecionar</button>
+          <button class="btn-lote" onclick="abrirModalLote()">⚡ Lote</button>
+          <button class="btn-nova-unidade" onclick="abrirModalUnidade()">+ Nova</button>
+        </div>
+      </div>
+
+      <div class="barra-selecao" id="barra-selecao">
+        <span class="barra-selecao-info" id="info-selecao">0 selecionadas</span>
+        <div class="barra-selecao-acoes">
+          <button class="btn-cancelar" onclick="toggleModoSelecao()">Cancelar</button>
+          <button class="btn-perigo" onclick="confirmarDeletarSelecionadas()">🗑 Deletar selecionadas</button>
+        </div>
+      </div>
+
+      <div class="unidades-grade" id="grade-unidades">
+        <!-- As unidades serão renderizadas aqui por renderUnidadesSimples ou renderUnidadesHierarquicas -->
+      </div>
+    </div>
+  `;
+}
+
+  // NOVO: Função para agrupar unidades por Bloco e Pavimento no frontend
+function agruparUnidadesPorBlocoPavimento(unidades) {
+  const blocosMap = new Map();
+
+  unidades.forEach(unidade => {
+    const blocoNome = unidade.bloco || "Sem Bloco";
+    const pavimentoNome = unidade.pavimento || "Sem Pavimento";
+
+    if (!blocosMap.has(blocoNome)) {
+      blocosMap.set(blocoNome, { nome: blocoNome, pavimentos: new Map() });
+    }
+    const bloco = blocosMap.get(blocoNome);
+
+    if (!bloco.pavimentos.has(pavimentoNome)) {
+      bloco.pavimentos.set(pavimentoNome, { nome: pavimentoNome, unidades: [] });
+    }
+    const pavimento = bloco.pavimentos.get(pavimentoNome);
+
+    pavimento.unidades.push(unidade);
+  });
+
+  // Converter Maps para arrays para facilitar a renderização
+  const blocosArray = Array.from(blocosMap.values()).map(bloco => {
+    return {
+      nome: bloco.nome,
+      pavimentos: Array.from(bloco.pavimentos.values()).map(pavimento => {
+        // Opcional: ordenar unidades dentro do pavimento por número
+        pavimento.unidades.sort((a, b) => {
+          const numA = parseInt(a.unidade.match(/\d+/)) || 0;
+          const numB = parseInt(b.unidade.match(/\d+/)) || 0;
+          return numA - numB;
+        });
+        return pavimento;
+      })
+    };
+  });
+
+  // Opcional: ordenar blocos e pavimentos por nome
+  blocosArray.sort((a, b) => a.nome.localeCompare(b.nome));
+  blocosArray.forEach(bloco => {
+    bloco.pavimentos.sort((a, b) => a.nome.localeCompare(b.nome));
+  });
+
+  return blocosArray;
+}
+
+  // NOVO: Função para renderizar unidades em formato simples (lista plana)
+function renderUnidadesSimples(unidades) {
+  const unidadesGrade = document.getElementById("grade-unidades");
+  unidadesGrade.innerHTML = ""; // Limpa o conteúdo existente
+
+  if (unidades.length === 0) {
+    unidadesGrade.innerHTML = `
+      <div class="placeholder-vazio" style="grid-column:1/-1">
+        Nenhuma unidade cadastrada para este empreendimento.
+      </div>`;
+    return;
   }
 
-  function renderPainelEmpreendimento(emp, unidades) {
-    const main = document.getElementById("gestor-main");
-
-    const disp  = unidades.filter(u => normalizar(u.status) === "disponivel").length;
-    const reserv = unidades.filter(u => normalizar(u.status) === "reservado").length;
-    const vend  = unidades.filter(u => normalizar(u.status) === "vendido").length;
-
-    main.innerHTML = `
-      <div class="secao">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
-          <div class="secao-titulo" style="margin-bottom:0">${emp.nome}</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn-cancelar" style="font-size:0.78rem" onclick="abrirModalEmpreendimento(empAtivo)">✏️ Editar</button>
-            <button class="btn-perigo" style="font-size:0.78rem;padding:8px 14px" onclick="confirmarDeletarEmpreendimento()">🗑 Deletar Empreendimento</button>
-          </div>
-        </div>
-        <div style="display:flex;gap:24px;font-size:0.82rem;color:#aaa;flex-wrap:wrap">
-          <span>📍 ${emp.bairro}, ${emp.cidade}</span>
-          <span>🏗️ ${emp.construtora}</span>
-          <span>🏠 ${emp.tipo}</span>
-          <span style="color:#2ecc71">● ${disp} disponíveis</span>
-          <span style="color:#FEAF00">● ${reserv} reservados</span>
-          <span style="color:#e74c3c">● ${vend} vendidos</span>
-        </div>
-      </div>
-
-      <div class="secao">
-        <div class="unidades-header">
-          <div class="secao-titulo" style="margin-bottom:0">Unidades</div>
-          <div class="unidades-acoes">
-            <button class="btn-selecionar" id="btn-modo-selecao" onclick="toggleModoSelecao()">☑ Selecionar</button>
-            <button class="btn-lote" onclick="abrirModalLote()">⚡ Lote</button>
-            <button class="btn-nova-unidade" onclick="abrirModalUnidade()">+ Nova</button>
-          </div>
-        </div>
-
-        <div class="barra-selecao" id="barra-selecao">
-          <span class="barra-selecao-info" id="info-selecao">0 selecionadas</span>
-          <div class="barra-selecao-acoes">
-            <button class="btn-cancelar" onclick="toggleModoSelecao()">Cancelar</button>
-            <button class="btn-perigo" onclick="confirmarDeletarSelecionadas()">🗑 Deletar selecionadas</button>
-          </div>
-        </div>
-
-        <div class="unidades-grade" id="grade-unidades"></div>
-      </div>
+  unidades.forEach(u => {
+    const card = document.createElement("div");
+    card.className = `unidade-card ${normalizar(u.status)} ${unidadesSelecionadas.has(u.unidade) ? "selecionada" : ""}`;
+    card.dataset.nome = u.unidade; // Adiciona o dataset.nome para seleção
+    card.innerHTML = `
+      <div class="check-selecao">✔</div>
+      <span class="num">${u.unidade}</span>
+      <span class="label">${labelStatus(normalizar(u.status))}</span>
+      <button class="btn-duplicar-card" title="Duplicar" onclick="duplicarUnidade(event, ${JSON.stringify(u).replace(/"/g, '&quot;')})">⧉</button>
     `;
-
-    const grade = document.getElementById("grade-unidades");
-
-    if (unidades.length === 0) {
-      grade.innerHTML = `<div class="placeholder-vazio" style="grid-column:1/-1">Nenhuma unidade cadastrada ainda.</div>`;
-      return;
-    }
-
-    unidades.forEach(u => {
-      const status = normalizar(u.status);
-      const el = document.createElement("div");
-      el.className = `unidade-card ${status}`;
-      el.dataset.nome = u.unidade;
-      el.innerHTML = `
-        <div class="check-selecao">✓</div>
-        <span class="num">${u.unidade}</span>
-        <span class="label">${labelStatus(status)}</span>
-        <button class="btn-duplicar-card" title="Duplicar" onclick="duplicarUnidade(event, ${JSON.stringify(u).replace(/"/g, '&quot;')})">⧉</button>
-      `;
-      el.addEventListener("click", (e) => {
-        if (e.target.classList.contains("btn-duplicar-card")) return;
-        if (modoSelecao) {
-          toggleSelecao(el, u.unidade);
-        } else {
-          abrirModalUnidade(u);
-        }
-      });
-      grade.appendChild(el);
+    card.addEventListener("click", (e) => {
+      if (e.target.classList.contains("btn-duplicar-card")) return;
+      if (modoSelecao) {
+        toggleSelecao(card, u.unidade); // Passa o elemento e o nome da unidade
+      } else {
+        abrirModalUnidade(u);
+      }
     });
+    unidadesGrade.appendChild(card);
+  });
+
+  // Atualiza o estado do modo de seleção (visibilidade da barra, etc.)
+  document.getElementById("secao-unidades").classList.toggle("modo-selecao", modoSelecao);
+  document.getElementById("barra-selecao").classList.toggle("ativa", modoSelecao);
+  atualizarInfoSelecao(); // Garante que a contagem esteja correta
+}
+
+  // NOVO: Função para renderizar unidades em formato hierárquico (Bloco -> Pavimento -> Unidade)
+function renderUnidadesHierarquicas(blocos) {
+  const unidadesGrade = document.getElementById("grade-unidades");
+  unidadesGrade.innerHTML = ""; // Limpa o conteúdo existente
+
+  if (blocos.length === 0) {
+    unidadesGrade.innerHTML = `
+      <div class="placeholder-vazio" style="grid-column:1/-1">
+        Nenhuma unidade cadastrada para este empreendimento.
+      </div>`;
+    return;
   }
+
+  blocos.forEach(bloco => {
+    const blocoContainer = document.createElement("div");
+    blocoContainer.className = "bloco-container"; // Classe para estilização do bloco
+    blocoContainer.innerHTML = `<h3>Bloco: ${bloco.nome}</h3>`;
+
+    bloco.pavimentos.forEach(pavimento => {
+      const pavimentoContainer = document.createElement("div");
+      pavimentoContainer.className = "pavimento-container"; // Classe para estilização do pavimento
+      pavimentoContainer.innerHTML = `<h4>Pavimento: ${pavimento.nome}</h4>`;
+
+      const unidadesGridInterno = document.createElement("div");
+      unidadesGridInterno.className = "unidades-grade-interno"; // Usar uma classe diferente para o grid interno
+
+      pavimento.unidades.forEach(u => {
+        const card = document.createElement("div");
+        card.className = `unidade-card ${normalizar(u.status)} ${unidadesSelecionadas.has(u.unidade) ? "selecionada" : ""}`;
+        card.dataset.nome = u.unidade; // Adiciona o dataset.nome para seleção
+        card.innerHTML = `
+          <div class="check-selecao">✔</div>
+          <span class="num">${u.unidade}</span>
+          <span class="label">${labelStatus(normalizar(u.status))}</span>
+          <button class="btn-duplicar-card" title="Duplicar" onclick="duplicarUnidade(event, ${JSON.stringify(u).replace(/"/g, '&quot;')})">⧉</button>
+        `;
+        card.addEventListener("click", (e) => {
+          if (e.target.classList.contains("btn-duplicar-card")) return;
+          if (modoSelecao) {
+            toggleSelecao(card, u.unidade); // Passa o elemento e o nome da unidade
+          } else {
+            abrirModalUnidade(u);
+          }
+        });
+        unidadesGridInterno.appendChild(card);
+      });
+
+      pavimentoContainer.appendChild(unidadesGridInterno);
+      blocoContainer.appendChild(pavimentoContainer);
+    });
+    unidadesGrade.appendChild(blocoContainer);
+  });
+
+  // Atualiza o estado do modo de seleção (visibilidade da barra, etc.)
+  document.getElementById("secao-unidades").classList.toggle("modo-selecao", modoSelecao);
+  document.getElementById("barra-selecao").classList.toggle("ativa", modoSelecao);
+  atualizarInfoSelecao(); // Garante que a contagem esteja correta
+}
 
   // ── MODO SELEÇÃO ───────────────────────────────────
   function toggleModoSelecao() {
@@ -1141,14 +1329,23 @@
     btn.textContent = "Deletando...";
 
     try {
-      const resp = await fetch(SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify({
-          acao: "deletarUnidades",
-          gid: empAtivo.gid,
-          unidades: Array.from(unidadesSelecionadas)
-        })
-      });
+      // Precisamos obter os detalhes completos das unidades selecionadas (incluindo bloco e pavimento)
+    // Para isso, vamos recarregar as unidades e filtrar as selecionadas.
+    // Isso é mais seguro do que tentar armazenar bloco/pavimento no Set, que só guarda o nome.
+    const respUnidadesAtuais = await fetch(`${SCRIPT_URL}?acao=listarUnidades&gid=${empAtivo.gid}`);
+    const dadosUnidadesAtuais = await respUnidadesAtuais.json();
+    const todasUnidades = dadosUnidadesAtuais.unidades || [];
+
+    const unidadesParaDeletarComDetalhes = todasUnidades.filter(u => unidadesSelecionadas.has(u.unidade));
+
+    const resp = await fetch(SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        acao: "deletarUnidades",
+        gid: empAtivo.gid,
+        unidades: unidadesParaDeletarComDetalhes // Agora envia objetos completos
+      })
+    });
       const dados = await resp.json();
 
       if (dados.sucesso) {
