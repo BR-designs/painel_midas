@@ -868,6 +868,18 @@
   let modoSelecao = false;
   let unidadesSelecionadas = new Set();
 
+  function normalizar(str) {
+    if (!str) return "";
+    return String(str).trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
+
+  function labelStatus(status) {
+    if (status === "disponivel") return "Livre";
+    if (status === "reservado")  return "Reserv.";
+    if (status === "vendido")    return "Vendido";
+    return status;
+  }
+
   // ── SIDEBAR MOBILE ─────────────────────────────────
   function toggleSidebar() {
     document.getElementById("gestor-sidebar").classList.toggle("aberta");
@@ -1674,17 +1686,6 @@ function renderUnidadesHierarquicas(blocos) {
   }
 
   // ── UTILITÁRIOS ────────────────────────────────────
-  function normalizar(str) {
-    if (!str) return "";
-    return String(str).trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  }
-
-  function labelStatus(status) {
-    if (status === "disponivel") return "Livre";
-    if (status === "reservado")  return "Reserv.";
-    if (status === "vendido")    return "Vendido";
-    return status;
-  }
 
   function abrirModal(id) { document.getElementById(id).classList.add("ativo"); }
   function fecharModal(id) { document.getElementById(id).classList.remove("ativo"); }
