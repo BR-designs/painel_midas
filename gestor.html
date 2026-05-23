@@ -317,6 +317,54 @@
     .modo-selecao .check-selecao { display: flex; }
     .unidade-card.selecionada .check-selecao { background: white; color: #111; }
 
+    .grade-predial {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding: 4px 0 12px;
+      align-items: flex-start;
+      width: 100%;
+      grid-column: 1 / -1;
+    }
+
+    .bloco-col {
+      flex: 1 1 160px;
+      min-width: 140px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .bloco-header {
+      background: #000;
+      color: #FEAF00;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #333;
+      text-align: center;
+    }
+
+    .pavimento-grupo { display: flex; flex-direction: column; gap: 6px; }
+
+    .pavimento-label {
+      font-size: 0.65rem;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #2a2a2a;
+    }
+
+    .grade-mini {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
+      gap: 8px;
+    }
+
     .btn-duplicar-card {
       position: absolute;
       top: 3px;
@@ -831,6 +879,68 @@
   let modoSelecao = false;
   let unidadesSelecionadas = new Set();
 
+  function isPredial(tipo) {
+    return tipo === "Residencial/Predial" || tipo === "Condomínio/Predial";
+  }
+
+  function renderGradePredial(container, unidades, criarCard) {
+    const blocos = {};
+    unidades.forEach(u => {
+      const b = u.bloco && String(u.bloco).trim() ? String(u.bloco).trim() : "__sem__";
+      if (!blocos[b]) blocos[b] = {};
+      const p = u.pavimento && String(u.pavimento).trim() ? String(u.pavimento).trim() : "__sem__";
+      if (!blocos[b][p]) blocos[b][p] = [];
+      blocos[b][p].push(u);
+    });
+
+    const normStr = s => String(s).trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+
+    const sortBlocos = keys => keys.sort((a, b) => {
+      if (a === "__sem__") return 1;
+      if (b === "__sem__") return -1;
+      return a.localeCompare(b, "pt-BR", { numeric: true });
+    });
+
+    const sortPavs = keys => keys.sort((a, b) => {
+      if (a === "__sem__") return 1;
+      if (b === "__sem__") return -1;
+      if (normStr(a) === "terreo" && normStr(b) === "terreo") return 0;
+      if (normStr(a) === "terreo") return 1;
+      if (normStr(b) === "terreo") return -1;
+      return b.localeCompare(a, "pt-BR", { numeric: true });
+    });
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "grade-predial";
+
+    sortBlocos(Object.keys(blocos)).forEach(b => {
+      const col = document.createElement("div");
+      col.className = "bloco-col";
+      const hdr = document.createElement("div");
+      hdr.className = "bloco-header";
+      hdr.textContent = b === "__sem__" ? "Sem bloco" : b;
+      col.appendChild(hdr);
+
+      sortPavs(Object.keys(blocos[b])).forEach(p => {
+        const grp = document.createElement("div");
+        grp.className = "pavimento-grupo";
+        const lbl = document.createElement("div");
+        lbl.className = "pavimento-label";
+        lbl.textContent = p === "__sem__" ? "Sem pavimento" : p;
+        grp.appendChild(lbl);
+        const mini = document.createElement("div");
+        mini.className = "grade-mini";
+        blocos[b][p].forEach(u => mini.appendChild(criarCard(u)));
+        grp.appendChild(mini);
+        col.appendChild(grp);
+      });
+
+      wrapper.appendChild(col);
+    });
+
+    container.appendChild(wrapper);
+  }
+
   // ── SIDEBAR MOBILE ─────────────────────────────────
   function toggleSidebar() {
     document.getElementById("gestor-sidebar").classList.toggle("aberta");
@@ -1059,7 +1169,7 @@
       return;
     }
 
-    unidades.forEach(u => {
+    const criarCardUnidade = u => {
       const status = normalizar(u.status);
       const el = document.createElement("div");
       el.className = `unidade-card ${status}`;
@@ -1078,8 +1188,14 @@
           abrirModalUnidade(u);
         }
       });
-      grade.appendChild(el);
-    });
+      return el;
+    };
+
+    if (isPredial(emp.tipo)) {
+      renderGradePredial(grade, unidades, criarCardUnidade);
+    } else {
+      unidades.forEach(u => grade.appendChild(criarCardUnidade(u)));
+    }
   }
 
   // ── MODO SELEÇÃO ───────────────────────────────────
