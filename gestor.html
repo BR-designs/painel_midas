@@ -918,7 +918,7 @@
       col.className = "bloco-col";
       const hdr = document.createElement("div");
       hdr.className = "bloco-header";
-      hdr.textContent = b === "__sem__" ? "Sem bloco" : b;
+      hdr.textContent = b === "__sem__" ? "Sem bloco" : "Bloco " + b;
       col.appendChild(hdr);
 
       sortPavs(Object.keys(blocos[b])).forEach(p => {
