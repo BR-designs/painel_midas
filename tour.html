@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tour Virtual – Midas Imobiliária Inteligente</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0a0a0a;
+      font-family: 'Segoe UI', sans-serif;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    #panorama {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+    }
+
+    .pano-layer {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0; right: 0;
+      height: 100vh;
+      width: 220px;
+      background: rgba(10, 10, 10, 0.93);
+      border-left: 2px solid #FEAF00;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1.8rem 1rem;
+      gap: 1rem;
+      backdrop-filter: blur(10px);
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar.hidden { transform: translateX(100%); }
+
+    .sidebar-logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.6rem;
+      padding-bottom: 1.2rem;
+      border-bottom: 1px solid #222;
+      width: 100%;
+    }
+
+    .sidebar-logo img { width: 54px; height: auto; }
+
+    .sidebar-logo .brand {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #fff;
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    .sidebar-logo .brand em { color: #FEAF00; font-style: normal; }
+
+    .sidebar-logo .sub {
+      font-size: 0.62rem;
+      color: #555;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .sidebar-property {
+      width: 100%;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #222;
+    }
+
+    .sidebar-property .prop-label {
+      font-size: 0.63rem;
+      color: #FEAF00;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 0.3rem;
+    }
+
+    .sidebar-property .prop-name {
+      font-size: 0.86rem;
+      color: #fff;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .sidebar-property .prop-location {
+      font-size: 0.73rem;
+      color: #666;
+      margin-top: 0.2rem;
+    }
+
+    .sidebar-rooms {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      flex: 1;
+    }
+
+    .sidebar-rooms .rooms-label {
+      font-size: 0.63rem;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 0.3rem;
+    }
+
+    .room-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.55rem 0.8rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+      color: #aaa;
+      font-size: 0.83rem;
+    }
+
+    .room-item:hover { background: #1a1a1a; color: #fff; }
+
+    .room-item.active {
+      background: #FEAF00;
+      color: #000;
+      font-weight: 600;
+      border-color: #FEAF00;
+    }
+
+    .room-item .room-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+
+    .sidebar-cta {
+      width: 100%;
+      padding-top: 1rem;
+      border-top: 1px solid #222;
+    }
+
+    .whatsapp-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      background: #FEAF00;
+      color: #000;
+      font-weight: 700;
+      font-size: 0.82rem;
+      padding: 0.7rem;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+
+    .whatsapp-btn:hover { opacity: 0.85; }
+
+    .sidebar-toggle {
+      position: fixed;
+      top: 1rem; right: 1rem;
+      z-index: 20;
+      background: rgba(10,10,10,0.85);
+      border: 1px solid #FEAF00;
+      color: #FEAF00;
+      width: 40px; height: 40px;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(8px);
+    }
+
+    .room-label-overlay {
+      position: fixed;
+      bottom: 2rem;
+      left: calc(50% - 110px);
+      transform: translateX(-50%);
+      background: rgba(10,10,10,0.75);
+      border: 1px solid #FEAF00;
+      color: #fff;
+      font-size: 0.85rem;
+      padding: 0.5rem 1.2rem;
+      border-radius: 20px;
+      z-index: 10;
+      pointer-events: none;
+      backdrop-filter: blur(8px);
+      letter-spacing: 0.05em;
+    }
+
+    @keyframes pulse-ring {
+      0%   { transform: translate(-50%, -50%) scale(1);   opacity: 0.8; }
+      100% { transform: translate(-50%, -50%) scale(1.9); opacity: 0;   }
+    }
+
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 0 10px 3px rgba(254,175,0,0.5); }
+      50%       { box-shadow: 0 0 24px 8px rgba(254,175,0,0.9); }
+    }
+
+    .midas-hotspot {
+      position: absolute;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: rgba(254,175,0,0.2);
+      border: 2.5px solid #FEAF00;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      animation: glow 2s ease-in-out infinite;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .midas-hotspot:hover {
+      background: rgba(254,175,0,0.45);
+      transform: scale(1.12);
+    }
+
+    .midas-hotspot .ring {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 2px solid #FEAF00;
+      top: 50%; left: 50%;
+      animation: pulse-ring 1.8s ease-out infinite;
+    }
+
+    .midas-hotspot svg {
+      width: 22px;
+      height: 22px;
+      fill: #FEAF00;
+      filter: drop-shadow(0 0 4px rgba(254,175,0,0.9));
+      position: relative;
+      z-index: 1;
+    }
+
+    .midas-hotspot .hs-label {
+      position: absolute;
+      bottom: -26px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10,10,10,0.88);
+      color: #FEAF00;
+      font-size: 0.68rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      white-space: nowrap;
+      border: 1px solid #333;
+      font-family: 'Segoe UI', sans-serif;
+      letter-spacing: 0.04em;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+    }
+
+    .midas-hotspot:hover .hs-label { opacity: 1; }
+
+    @media (max-width: 768px) {
+      .sidebar { width: 200px; }
+      .sidebar-toggle { display: flex; }
+      .room-label-overlay { left: 50%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="panorama"></div>
+  <div class="room-label-overlay" id="roomLabel"></div>
+  <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+
+      <div class="brand"><em>Midas</em> Imobiliária<br>Inteligente</div>
+      <div class="sub">Tour Virtual 360°</div>
+    </div>
+
+    <div class="sidebar-property">
+      <div class="prop-label">Imóvel</div>
+      <div class="prop-name" id="propName"></div>
+      <div class="prop-location" id="propLocation"></div>
+    </div>
+
+    <div class="sidebar-rooms">
+      <div class="rooms-label">Ambientes</div>
+      <div id="roomList"></div>
+    </div>
+
+    <div class="sidebar-cta">
+      <a class="whatsapp-btn" id="waBtn" href="#" target="_blank">
+        💬 Falar com Corretor
+      </a>
+    </div>
+  </div>
+
+  <script>
+    let imoveis = {};
+    let cloudinaryBase = '';
+
+    async function loadConfig() {
+      const res = await fetch('tours.json');
+      const config = await res.json();
+      imoveis = config.imoveis;
+      cloudinaryBase = config.cloudinaryBase;
+      loadImovel(getImovelId());
+    }
+
+    function getImovelId() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('imovel') || Object.keys(imoveis)[0];
+    }
+
+    let viewer = null;
+    let currentImovel = null;
+
+    function loadImovel(imovelId) {
+      currentImovel = imoveis[imovelId] || imoveis[Object.keys(imoveis)[0]];
+
+      document.getElementById('propName').textContent = currentImovel.name;
+      document.getElementById('propLocation').textContent = '📍 ' + currentImovel.location;
+      document.getElementById('waBtn').href =
+        `https://wa.me/${currentImovel.whatsapp}?text=Olá!%20Vi%20o%20tour%20virtual%20do%20imóvel%20${encodeURIComponent(currentImovel.name)}%20e%20tenho%20interesse.`;
+
+      const roomList = document.getElementById('roomList');
+      roomList.innerHTML = '';
+      currentImovel.rooms.forEach(room => {
+        const item = document.createElement('div');
+        item.className = 'room-item';
+        item.id = 'item-' + room.id;
+        item.innerHTML = `<div class="room-dot"></div>${room.label}`;
+        item.onclick = () => loadRoom(room.id);
+        roomList.appendChild(item);
+      });
+
+      loadRoom(currentImovel.rooms[0].id);
+    }
+
+    function criarHotspotElement(label, onClickFn) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'midas-hotspot';
+
+      const ring = document.createElement('div');
+      ring.className = 'ring';
+      wrapper.appendChild(ring);
+
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('viewBox', '0 0 24 24');
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', 'M12 2L4 14h5v8h6v-8h5z');
+      svg.appendChild(path);
+      wrapper.appendChild(svg);
+
+      const lbl = document.createElement('div');
+      lbl.className = 'hs-label';
+      lbl.textContent = label;
+      wrapper.appendChild(lbl);
+
+      wrapper.addEventListener('click', onClickFn);
+      return wrapper;
+    }
+
+    function loadRoom(roomId) {
+      const room = currentImovel.rooms.find(r => r.id === roomId);
+      if (!room) return;
+
+      document.getElementById('roomLabel').textContent = room.label;
+      document.querySelectorAll('.room-item').forEach(el => el.classList.remove('active'));
+      const activeItem = document.getElementById('item-' + roomId);
+      if (activeItem) activeItem.classList.add('active');
+
+      const panoramaEl = document.getElementById('panorama');
+
+      const newLayer = document.createElement('div');
+      newLayer.className = 'pano-layer';
+      newLayer.style.opacity = '0';
+      newLayer.style.transform = 'scale(0.95)';
+      newLayer.style.zIndex = '2';
+      panoramaEl.appendChild(newLayer);
+
+      const hotspots = room.hotspots.map(hs => ({
+        pitch: hs.pitch,
+        yaw: hs.yaw,
+        type: 'custom',
+        cssClass: 'midas-hs-container',
+        createTooltipFunc: (container) => {
+          const el = criarHotspotElement(hs.label, () => loadRoom(hs.targetId));
+          container.appendChild(el);
+          container.style.width = '64px';
+          container.style.height = '64px';
+          container.style.marginTop = '-32px';
+          container.style.marginLeft = '-32px';
+          container.style.cursor = 'pointer';
+        }
+      }));
+
+      const newViewer = pannellum.viewer(newLayer, {
+        type: 'equirectangular',
+        panorama: cloudinaryBase + room.image,
+        autoLoad: true,
+        autoRotate: -1.5,
+        compass: false,
+        showFullscreenCtrl: false,
+        showZoomCtrl: false,
+        mouseZoom: true,
+        pitch: room.pitch,
+        yaw: room.yaw,
+        hfov: 100,
+        hotSpots: hotspots,
+        uiText: {
+          loadButtonLabel: 'Carregar Tour',
+          loadingLabel: 'Carregando...',
+          bylineLabel: '',
+          noPanoramaError: 'Imagem não encontrada.',
+          fileAccessError: 'Não foi possível carregar a imagem.',
+          malformedURLError: 'URL inválida.',
+          genericWebGLError: 'Erro ao carregar o visualizador.',
+          textureSizeError: 'Imagem muito grande para este dispositivo.',
+          unknownError: 'Erro desconhecido.'
+        }
+      });
+
+      newViewer.on('load', () => {
+        const oldLayers = panoramaEl.querySelectorAll('.pano-layer:not(:last-child)');
+        oldLayers.forEach(layer => {
+          layer.style.transform = 'scale(1.08)';
+          layer.style.opacity = '0';
+        });
+
+        newLayer.style.opacity = '1';
+        newLayer.style.transform = 'scale(1)';
+
+        setTimeout(() => {
+          oldLayers.forEach(layer => layer.remove());
+          if (viewer) { viewer.destroy(); viewer = null; }
+          viewer = newViewer;
+        }, 650);
+      });
+    }
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('hidden');
+    }
+
+    loadConfig();
+  </script>
+</body>
+</html>

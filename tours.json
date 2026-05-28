@@ -1,0 +1,19 @@
+{
+  "cloudinaryBase": "https://res.cloudinary.com/midas-tour/image/upload/",
+  "imoveis": {
+    "A-101": {
+      "name": "Apartamento A-101",
+      "location": "Belém, PA",
+      "whatsapp": "5591...",
+      "rooms": [
+        {
+          "id": "sala",
+          "label": "Sala",
+          "image": "A-101-sala.jpg",
+          "pitch": 0, "yaw": 0,
+          "hotspots": []
+        }
+      ]
+    }
+  }
+}
